@@ -1,0 +1,19 @@
+{
+  "name": "agent-forge-ui",
+  "version": "0.1.0",
+  "description": "Demonstration web UI built by agent-forge",
+  "license": "MIT",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "lint": "tsc --noEmit",
+    "test": "bash tests/run_all.sh"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vite": "^8.0.16"
+  }
+}

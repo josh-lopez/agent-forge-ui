@@ -1,0 +1,9 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# Editor / OS artefacts
+.DS_Store
+*.local

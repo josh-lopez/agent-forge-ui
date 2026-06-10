@@ -1,0 +1,14 @@
+{
+  "name": "agent-forge-ui",
+  "version": "0.1.0",
+  "description": "Demonstration web UI built by agent-forge",
+  "private": true,
+  "scripts": {
+    "test": "bash tests/run_all.sh",
+    "lint:html": "htmlhint --config .htmlhintrc $(find . -name '*.html' -not -path './.git/*' -not -path './node_modules/*')"
+  },
+  "devDependencies": {
+    "htmlhint": "^1.1.4"
+  },
+  "license": "MIT"
+}

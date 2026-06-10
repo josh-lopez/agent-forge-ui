@@ -56,6 +56,7 @@ fi
 # Find all files that look like licence files (case-insensitive), excluding .git
 OTHER_LICENSE_FILES=$(find "$REPO_ROOT" \
   -not -path "$REPO_ROOT/.git/*" \
+  -not -path "$REPO_ROOT/node_modules/*" \
   \( -iname "license*" -o -iname "licence*" -o -iname "copying*" \) \
   ! -path "$LICENSE_FILE" \
   2>/dev/null)

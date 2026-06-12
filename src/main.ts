@@ -1,5 +1,2 @@
-const app = document.querySelector<HTMLDivElement>('#app');
-
-if (app) {
-  app.innerHTML = '<h1>agent-forge-ui</h1>';
-}
+// Main entry point for agent-forge-ui
+// The heading is now in index.html for static rendering

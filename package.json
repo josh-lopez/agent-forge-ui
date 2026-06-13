@@ -1,14 +1,23 @@
 {
   "name": "agent-forge-ui",
   "version": "0.1.0",
-  "description": "Demonstration web UI built by agent-forge",
+  "description": "Live demonstration web UI for agent-forge",
   "private": true,
+  "engines": {
+    "node": ">=20"
+  },
+  "type": "module",
   "scripts": {
-    "test": "bash tests/run_all.sh",
-    "lint:html": "htmlhint --config .htmlhintrc $(find . -name '*.html' -not -path './.git/*' -not -path './node_modules/*')"
+    "build": "vite build",
+    "dev": "vite",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "lint:html": "htmlhint --config .htmlhintrc index.html",
+    "test": "bash tests/run_all.sh"
   },
   "devDependencies": {
-    "htmlhint": "^1.1.4"
-  },
-  "license": "MIT"
+    "htmlhint": "^1.1.4",
+    "typescript": "^5.4.5",
+    "vite": "^5.2.11"
+  }
 }

@@ -53,7 +53,8 @@ else
 fi
 
 # ── AC5: No other licence files are added or modified ────────────────────────
-# Find all files that look like licence files (case-insensitive), excluding .git
+# Find all files that look like licence files (case-insensitive),
+# excluding .git and node_modules directories.
 OTHER_LICENSE_FILES=$(find "$REPO_ROOT" \
   -not -path "$REPO_ROOT/.git/*" \
   -not -path "$REPO_ROOT/node_modules/*" \

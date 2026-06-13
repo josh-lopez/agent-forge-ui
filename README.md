@@ -28,7 +28,7 @@ agent-forge-ui is a small, self-contained front-end application that demonstrate
 
 To run this project locally, you'll need:
 
-- **Node.js** (v18 or later recommended)
+- **Node.js** (v20 or later, as required by the `engines` field in `package.json`)
 - **npm** (v9 or later) or **yarn** (v3 or later)
 
 Check your versions:
@@ -97,6 +97,14 @@ npm test
 ```
 
 This executes all tests in the `tests/` directory.
+
+Run the TypeScript type-checker without emitting output:
+
+```bash
+npm run typecheck
+```
+
+This runs `tsc --noEmit` and reports any type errors. Vite handles the actual build output; this script is for type-checking only.
 
 ## Deployment
 

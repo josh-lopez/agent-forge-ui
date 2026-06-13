@@ -4,6 +4,20 @@ node_modules/
 # Build output
 dist/
 
-# Editor / OS artefacts
+# Local env files
+.env
+.env.local
+.env.*.local
+
+# Editor directories and files
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# OS files
 .DS_Store
-*.local
+Thumbs.db

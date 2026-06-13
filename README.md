@@ -6,6 +6,18 @@ A demonstration web UI built by agent-forge. This project showcases agentic engi
 
 agent-forge-ui is a small, self-contained web application that serves as a live demonstration of how AI-assisted development can streamline the software delivery process. It's designed to be simple, clear, and easy to understand.
 
+## Landing Page
+
+A static `index.html` lives at the repo root. Open it directly in any browser — no build step or tooling required:
+
+```
+open index.html        # macOS
+xdg-open index.html    # Linux
+start index.html       # Windows
+```
+
+It displays the product name **Agent Forge** and a one-line tagline.
+
 ## Getting Started
 
 For development and build instructions, see the [spec](./spec/README.md).

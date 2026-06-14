@@ -10,8 +10,7 @@ agent-forge-ui is a small, self-contained front-end application that demonstrate
 
 ```
 .
-├── src/                    # Application source code (TypeScript/JavaScript)
-├── public/                 # Static assets (images, fonts, etc.)
+├── src/                    # Application source code (TypeScript)
 ├── spec/                   # Product specification and requirements
 ├── tests/                  # Test scripts and test utilities
 ├── .agent-forge/           # Agent-forge configuration and metadata
@@ -19,6 +18,7 @@ agent-forge-ui is a small, self-contained front-end application that demonstrate
 ├── vite.config.ts          # Vite build tool configuration
 ├── tsconfig.json           # TypeScript compiler configuration
 ├── index.html              # Application entry point
+├── style.css               # Global stylesheet
 ├── LICENSE                 # MIT License
 ├── CONTRIBUTING.md         # Contribution guidelines
 └── README.md               # This file
@@ -28,8 +28,8 @@ agent-forge-ui is a small, self-contained front-end application that demonstrate
 
 To run this project locally, you'll need:
 
-- **Node.js** (v18 or later recommended)
-- **npm** (v9 or later) or **yarn** (v3 or later)
+- **Node.js** — see the `engines` field in `package.json` for the minimum required version
+- **npm** — bundled with Node.js
 
 Check your versions:
 ```bash

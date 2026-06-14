@@ -97,7 +97,9 @@ if [ -f "$PACKAGE_JSON" ]; then
   PKG_LICENSE=$(grep '"license"' "$PACKAGE_JSON" | sed 's/.*"license"[[:space:]]*:[[:space:]]*"\([^"]*\)".*/\1/')
 
   if [ -z "$PKG_LICENSE" ]; then
-    fail "AC4 – package.json exists but has no \"license\" field"
+    # AC4 wording: "consistent with any licence field if one exists". No field
+    # present means there is nothing to contradict, so this is vacuously consistent.
+    pass "AC4 – package.json has no \"license\" field; consistency vacuously satisfied"
   else
     pass "AC4 – package.json has a \"license\" field: $PKG_LICENSE"
 

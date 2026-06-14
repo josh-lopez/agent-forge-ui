@@ -100,15 +100,57 @@ This executes all tests in the `tests/` directory.
 
 ## Deployment
 
-The production build (`dist/` directory) can be deployed to any static hosting service, such as:
+The application is deployed to **GitHub Pages** as a project site, served from
+`https://<owner>.github.io/<repo>/` (for this repository, the path segment is
+`/agent-forge-ui/`). Deployment is fully automated by a GitHub Actions
+workflow — no manual upload or third-party account is required, and no deploy
+tokens or secrets are stored in the repository (the built-in `GITHUB_TOKEN` is
+used).
 
-- GitHub Pages
-- Vercel
-- Netlify
-- AWS S3 + CloudFront
-- Any other static file hosting
+### How it works
 
-**Note:** Deployment configuration and target are to be determined. See your deployment documentation or contact the team for specific deployment instructions.
+- The workflow at [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)
+  runs on every push to `main` (and can be triggered manually from the Actions
+  tab via **Run workflow**).
+- It installs dependencies, runs `npm run build`, and uploads the contents of
+  the `dist/` directory (Vite's production build output) as a Pages artifact.
+- A separate `deploy` job publishes that artifact to GitHub Pages. Because
+  `deploy` declares `needs: build`, the site is only published when the build
+  succeeds — a failing build aborts the deploy.
+- During the Pages build the workflow sets the `VITE_BASE` environment variable
+  to `/<repo>/` so Vite emits asset URLs under the project-site sub-path. Local
+  `npm run dev` and `npm run build` default `base` to `/`, so local development
+  and preview are unaffected.
+
+### One-time setup (repository maintainer)
+
+GitHub Pages must be configured to deploy from GitHub Actions before the first
+deploy will go live:
+
+1. In the repository on GitHub, open **Settings → Pages**.
+2. Under **Build and deployment → Source**, select **GitHub Actions**.
+3. Push to `main` (or trigger the **Deploy to GitHub Pages** workflow manually
+   from the **Actions** tab). The workflow builds and publishes the site.
+4. Once the `deploy` job finishes, the public URL appears in the workflow run
+   summary and under **Settings → Pages** (e.g.
+   `https://<owner>.github.io/agent-forge-ui/`).
+
+### Deploying a one-off build manually
+
+If you need to build and publish from your machine instead of CI, build with the
+correct base path so asset URLs resolve correctly:
+
+```bash
+# Build with the GitHub Pages sub-path.
+VITE_BASE="/agent-forge-ui/" npm run build
+
+# The deployable site is now in ./dist
+```
+
+Then upload the contents of `dist/` to your static host. For any non-Pages
+static host (Netlify, Vercel, S3 + CloudFront, etc.), set the build command to
+`npm run build`, the publish/output directory to `dist`, and the base path to
+`/` (the default) since those hosts serve from the domain root.
 
 ## Non-Goals
 

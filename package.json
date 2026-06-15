@@ -13,11 +13,15 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint:html": "htmlhint --config .htmlhintrc index.html",
-    "test": "bash tests/run_all.sh"
+    "test:unit": "vitest run",
+    "test:scripts": "bash tests/run_all.sh",
+    "test": "vitest run && bash tests/run_all.sh"
   },
   "devDependencies": {
     "htmlhint": "^1.1.4",
+    "jsdom": "^24.1.0",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vitest": "^1.6.0"
   }
 }

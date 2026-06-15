@@ -1,3 +1,4 @@
+/// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 
 // The deployment target is GitHub Pages (project site), which serves the app
@@ -13,5 +14,12 @@ export default defineConfig({
   base,
   build: {
     outDir: 'dist',
+  },
+  // Vitest configuration. The jsdom environment provides browser-like DOM APIs
+  // (document, DOMParser, …) so the front-end logic and HTML-structure tests
+  // can run headlessly in CI. Test files live under src/**/__tests__/.
+  test: {
+    environment: 'jsdom',
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
   },
 });

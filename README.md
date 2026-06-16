@@ -140,6 +140,7 @@ deploy will go live:
 If you need to build and publish from your machine instead of CI, build with the
 correct base path so asset URLs resolve correctly:
 
+```bash
 VITE_BASE="/agent-forge-ui/" npm run build  # build with the GitHub Pages sub-path
 
 echo "The deployable site is now in ./dist"

@@ -120,8 +120,11 @@ else
 fi
 
 # ── AC6: Valid Markdown structural checks ────────────────────────────────────
-# Must have exactly one H1 (top-level title)
-H1_COUNT=$(grep -c "^# " "$README" || true)
+# Must have exactly one H1 (top-level title).
+# Strip fenced code blocks first so `#` comments inside ```bash blocks are not
+# mistaken for Markdown headings.
+README_NO_CODE=$(awk '/^```/{infence=!infence; next} !infence' "$README")
+H1_COUNT=$(printf '%s\n' "$README_NO_CODE" | grep -c "^# " || true)
 if [ "$H1_COUNT" -eq 1 ]; then
   pass "AC6 – README.md has exactly one H1 heading"
 else
@@ -129,7 +132,7 @@ else
 fi
 
 # Must have multiple H2 sections (purpose, structure, getting started, etc.)
-H2_COUNT=$(grep -c "^## " "$README" || true)
+H2_COUNT=$(printf '%s\n' "$README_NO_CODE" | grep -c "^## " || true)
 if [ "$H2_COUNT" -ge 3 ]; then
   pass "AC6 – README.md has $H2_COUNT H2 sections (well-structured)"
 else

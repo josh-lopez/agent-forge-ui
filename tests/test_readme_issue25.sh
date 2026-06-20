@@ -121,7 +121,9 @@ fi
 
 # ── AC6: Valid Markdown structural checks ────────────────────────────────────
 # Must have exactly one H1 (top-level title)
-H1_COUNT=$(grep -c "^# " "$README" || true)
+# Count H1 headings, ignoring lines inside fenced code blocks (e.g. shell
+# comments such as "# Build ..." inside ```bash blocks are NOT Markdown H1s).
+H1_COUNT=$(awk '/^```/{infence=!infence; next} !infence && /^# /{c++} END{print c+0}' "$README")
 if [ "$H1_COUNT" -eq 1 ]; then
   pass "AC6 – README.md has exactly one H1 heading"
 else

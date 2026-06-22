@@ -10,3 +10,93 @@ body {
 h1 {
   text-align: center;
 }
+
+/* ── Billing reconciliation audit log (Issue #46) ───────────────────────── */
+
+.audit-log {
+  max-width: 960px;
+  margin: 32px auto 0;
+}
+
+.audit-log h2 {
+  text-align: center;
+}
+
+.audit-log-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.audit-log-controls label {
+  font-weight: 600;
+}
+
+.audit-log-controls select {
+  padding: 4px 8px;
+  font: inherit;
+}
+
+.audit-log-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.audit-log-table th,
+.audit-log-table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+.audit-log-table th {
+  background: #f4f4f4;
+}
+
+.audit-log-table .col-amount {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Discrepancy entries are visually distinguished from matched entries. */
+.audit-log-row.status-discrepancy {
+  background: #fdecec;
+}
+
+.audit-log-row.status-matched {
+  background: #ffffff;
+}
+
+.audit-log-row.status-resolved {
+  background: #eef7ee;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 0.85em;
+  font-weight: 600;
+}
+
+.status-badge-matched {
+  background: #e2e8f0;
+  color: #1a202c;
+}
+
+.status-badge-discrepancy {
+  background: #c0392b;
+  color: #ffffff;
+}
+
+.status-badge-resolved {
+  background: #2e7d32;
+  color: #ffffff;
+}
+
+.audit-log-empty {
+  font-style: italic;
+  color: #666;
+}

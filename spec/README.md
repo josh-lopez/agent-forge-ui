@@ -37,6 +37,27 @@ real-time transaction webhook delivery with automatic retries.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
 
+## Event log filtering
+
+The event log must be filterable so merchants can quickly locate relevant
+delivery attempts without scrolling through the full history.
+
+### Date-range filter
+
+- **Inputs**: a start date-time input and an end date-time input are rendered
+  above (or alongside) the event log.
+- **Immediate filtering**: selecting a range immediately (or on "Apply") hides
+  log entries whose attempt timestamp falls outside the selected start and end
+  date-times; boundary entries (exactly equal to start or end) are included.
+- **Clear / reset**: clearing both inputs restores the full unfiltered log.
+- **Active-filter indicator**: while a date range is set, a visible indicator
+  confirms the filter is active; a clear-all control removes the range in one
+  action.
+- **Filter composition**: the date-range filter works correctly in combination
+  with event-type and status filters.
+- **Test coverage**: unit tests cover range applied, range cleared, and boundary
+  entries included/excluded.
+
 ## Webhook delivery simulator (developer fixture)
 
 To enable UI development and testing without external services, the repo must

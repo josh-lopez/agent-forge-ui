@@ -36,11 +36,29 @@ real-time transaction webhook delivery with automatic retries.
   code, and response body excerpt, visible in the UI.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
-- **Retry persistence**: retry state (current status, next scheduled attempt,
-  attempt count) and the full attempt history log for every webhook are stored
-  durably in browser `localStorage`. On page reload the UI restores all delivery
-  statuses and logs exactly as they were, so merchants always see accurate,
-  up-to-date information without data loss.
+
+## Webhook delivery simulator (developer fixture)
+
+To enable UI development and testing without external services, the repo must
+include a client-side webhook delivery simulator.
+
+### Requirements
+
+- **Configurable success/failure rate**: the simulator accepts a `successRate`
+  parameter (0.0–1.0) that controls the probability each simulated delivery
+  attempt succeeds.
+- **Event emission**: the simulator emits the same delivery-event shape used by
+  the real delivery mechanism (status, timestamp, HTTP status code, response
+  body excerpt) so UI components need no special-case code.
+- **Retry flow coverage**: the simulator progresses through the full retry
+  schedule (see Retry schedule above), emitting intermediate `failed` events
+  before eventually resolving to `delivered` or `exhausted`, allowing developers
+  to exercise every UI state.
+- **Developer ergonomics**: the simulator is importable as a standalone module
+  and can be activated via a documented environment flag or dev-mode toggle,
+  with no impact on production builds.
+- **No external dependencies**: the simulator is entirely client-side; it must
+  not call any real endpoints or require a running backend.
 
 ## Non-goals
 

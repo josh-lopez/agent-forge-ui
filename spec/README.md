@@ -34,6 +34,18 @@ real-time transaction webhook delivery with automatic retries.
   webhook from the UI.
 - **Event log**: each delivery attempt is logged with timestamp, HTTP status
   code, and response body excerpt, visible in the UI.
+- **Event log filtering**: the event log must be filterable and searchable so
+  merchants can quickly isolate and diagnose specific delivery issues. Supported
+  filter dimensions are:
+  - **Date range** — a start and end date/time picker constraining the visible
+    log entries.
+  - **Event type** — a selector (single or multi-select) limiting entries to one
+    or more webhook event types (e.g. `payment.created`, `refund.issued`).
+  - **Delivery status** — a selector limiting entries to one or more statuses
+    (pending / delivered / failed / exhausted).
+  Filters may be combined; the log updates in real time (or on apply) as filter
+  values change. An active-filter indicator and a clear-all control must be
+  present when any filter is non-default.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
 

@@ -152,6 +152,65 @@ static host (Netlify, Vercel, S3 + CloudFront, etc.), set the build command to
 `npm run build`, the publish/output directory to `dist`, and the base path to
 `/` (the default) since those hosts serve from the domain root.
 
+## Developer fixtures
+
+For UI development and testing without a backend, the repo ships a client-side
+**webhook delivery simulator**. It implements the same `WebhookDeliveryService`
+interface as the real delivery mechanism and emits the same delivery-event shape
+(status, timestamp, HTTP status code, response-body excerpt), so UI components
+need no special-case code.
+
+The simulator is wired at the dependency-injection seam in
+`src/delivery/index.ts`. Activating it is build-time only — no runtime UI toggle
+ships to production, and when the flag is unset the simulator module is fully
+tree-shaken out of the production bundle (verified in CI by
+`tests/test_simulator_di.sh`).
+
+### Enabling the simulator
+
+Set the `VITE_USE_WEBHOOK_SIMULATOR` environment variable to `true` when running
+the dev server (the `VITE_` prefix is required for Vite to expose the value to
+client code):
+
+```bash
+# Run the dev server with the simulator active.
+VITE_USE_WEBHOOK_SIMULATOR=true npm run dev
+```
+
+When the flag is unset (the default, and the production build), the app uses the
+real webhook delivery mechanism and no simulator code is included.
+
+### Configuration options
+
+The simulator's behaviour is configured via additional `VITE_`-prefixed
+environment variables, read at build time by the DI seam:
+
+| Variable | Range / type | Default | Description |
+| --- | --- | --- | --- |
+| `VITE_USE_WEBHOOK_SIMULATOR` | `true` / unset | unset | Master flag. Set to `true` to swap the real delivery mechanism for the simulator. |
+| `VITE_WEBHOOK_SIMULATOR_SUCCESS_RATE` | `0.0`–`1.0` | `0.5` | Probability that each simulated delivery attempt succeeds. |
+| `VITE_WEBHOOK_SIMULATOR_MAX_ATTEMPTS` | integer ≥ 1 | length of the retry schedule | Maximum delivery attempts before a webhook is marked `exhausted`. |
+
+Example — a flaky endpoint that succeeds ~20% of the time and gives up after 4
+attempts:
+
+```bash
+VITE_USE_WEBHOOK_SIMULATOR=true \
+VITE_WEBHOOK_SIMULATOR_SUCCESS_RATE=0.2 \
+VITE_WEBHOOK_SIMULATOR_MAX_ATTEMPTS=4 \
+  npm run dev
+```
+
+The simulator progresses through the full exponential back-off retry schedule
+(immediately, 1 min, 5 min, 30 min, 2 h, 8 h), emitting intermediate `failed`
+events before resolving to `delivered` or `exhausted`, so every webhook UI state
+can be exercised.
+
+**Configuration boundary:** `successRate` and `maxAttempts` are resolved at build
+time from the environment, so changing them requires restarting the dev server;
+they cannot be reconfigured at runtime. The simulator is entirely client-side and
+calls no real endpoints, so no backend is required.
+
 ## Non-Goals
 
 This repository focuses solely on the front-end UI. The following are explicitly out of scope:

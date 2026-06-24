@@ -16,6 +16,9 @@ pipeline designs, builds, tests, and ships them as merge-ready PRs.
 - Standard project hygiene (README, licence, sensible build config).
 - Merchants receive critical payment events reliably via webhook delivery with
   automatic retries, reducing reconciliation errors and support tickets.
+- Payment state is derived from an immutable event log, enabling complete audit
+  trails, precise reconciliation, and replay capability for investigating
+  discrepancies.
 
 ## Webhook delivery & retries
 
@@ -36,6 +39,38 @@ real-time transaction webhook delivery with automatic retries.
   code, and response body excerpt, visible in the UI.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
+
+## Event sourcing for payment state
+
+Payment state must be managed using an event-sourcing pattern: the current state
+of any payment is derived by replaying an ordered, append-only sequence of
+immutable domain events rather than by mutating a single record in place.
+
+### Requirements
+
+- **Immutable event store**: all payment state changes are recorded as discrete,
+  timestamped, immutable events (e.g. `PaymentInitiated`, `PaymentAuthorised`,
+  `PaymentCaptured`, `PaymentFailed`, `PaymentRefunded`). No event may be
+  deleted or mutated after it is written.
+- **State derivation**: current payment state is computed by reducing (replaying)
+  the ordered event sequence for a given payment; no separate mutable state
+  record is the source of truth.
+- **Replay capability**: the event store exposes a replay function that accepts
+  an optional end-timestamp or sequence number, allowing developers and support
+  staff to reconstruct payment state at any point in time for discrepancy
+  investigation.
+- **Audit trail**: the full event history for a payment is accessible in the UI,
+  showing event type, timestamp, and relevant payload fields, so merchants and
+  support staff have a complete audit trail without raising tickets.
+- **Reconciliation support**: because state is derived from events, the UI can
+  surface a reconciliation view that lists all events for a date range, enabling
+  precise matching against external records.
+- **Event schema**: each event carries at minimum: `eventId` (UUID), `paymentId`,
+  `eventType`, `occurredAt` (ISO-8601), and a `payload` object containing
+  event-specific fields. The schema must be documented in the repo.
+- **Test coverage**: unit tests cover state derivation from a sequence of events,
+  replay to a past point in time, and correct rejection of any attempt to mutate
+  or delete an existing event.
 
 ## Event log filtering
 

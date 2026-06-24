@@ -16,6 +16,8 @@ pipeline designs, builds, tests, and ships them as merge-ready PRs.
 - Standard project hygiene (README, licence, sensible build config).
 - Merchants receive critical payment events reliably via webhook delivery with
   automatic retries, reducing reconciliation errors and support tickets.
+- The payment gateway remains responsive during incidents through rate limiting
+  and circuit-breaker protection against cascading failures.
 
 ## Webhook delivery & retries
 
@@ -36,6 +38,39 @@ real-time transaction webhook delivery with automatic retries.
   code, and response body excerpt, visible in the UI.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
+
+## Rate limiting & circuit breakers
+
+To protect against cascading failures and DDoS-style traffic spikes, the
+delivery mechanism must implement rate limiting and circuit-breaker logic.
+
+### Rate limiting
+
+- **Per-endpoint limit**: outbound webhook delivery attempts are rate-limited
+  per destination endpoint, with a configurable maximum requests-per-minute
+  threshold.
+- **Queue-based back-pressure**: attempts that exceed the rate limit are queued
+  rather than dropped; they are dispatched once the rate window allows.
+- **UI visibility**: the UI indicates when a webhook delivery is in a
+  rate-limited / queued state (distinct from `pending` or `failed`).
+- **Test coverage**: unit tests cover the limit threshold, queuing behaviour,
+  and resumption after the rate window resets.
+
+### Circuit breaker
+
+- **States**: the circuit breaker operates in three states — `closed` (normal),
+  `open` (delivery halted), and `half-open` (probe attempt allowed).
+- **Trip threshold**: the circuit opens after a configurable number of
+  consecutive failures to a given endpoint within a configurable time window.
+- **Half-open probe**: after a configurable cool-down period the circuit moves
+  to `half-open` and allows a single probe delivery; success closes the circuit,
+  failure re-opens it.
+- **UI visibility**: the UI surfaces the current circuit-breaker state per
+  endpoint, with a prominent alert when the circuit is `open`.
+- **Manual override**: merchants can manually close an open circuit from the UI
+  to force immediate retry (subject to rate limits).
+- **Test coverage**: unit tests cover the closed→open trip, half-open probe
+  success and failure paths, and manual override.
 
 ## Event log filtering
 
@@ -75,6 +110,9 @@ include a client-side webhook delivery simulator.
   schedule (see Retry schedule above), emitting intermediate `failed` events
   before eventually resolving to `delivered` or `exhausted`, allowing developers
   to exercise every UI state.
+- **Rate-limit & circuit-breaker simulation**: the simulator can be configured
+  to trigger rate-limited and circuit-breaker states, allowing developers to
+  exercise those UI states without a real backend.
 - **Developer ergonomics**: the simulator is importable as a standalone module
   and can be activated via a documented environment flag or dev-mode toggle,
   with no impact on production builds.

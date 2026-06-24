@@ -16,6 +16,8 @@ pipeline designs, builds, tests, and ships them as merge-ready PRs.
 - Standard project hygiene (README, licence, sensible build config).
 - Merchants receive critical payment events reliably via webhook delivery with
   automatic retries, reducing reconciliation errors and support tickets.
+- Payment flow failures are diagnosable in minutes, not hours, via complete
+  request visibility through distributed tracing.
 
 ## Webhook delivery & retries
 
@@ -58,6 +60,37 @@ delivery attempts without scrolling through the full history.
 - **Test coverage**: unit tests cover range applied, range cleared, and boundary
   entries included/excluded.
 
+## Distributed tracing for payment flows
+
+To reduce mean-time-to-resolution for payment failures, every payment flow must
+be instrumented with distributed tracing that gives complete request visibility
+across the UI and its simulated delivery mechanism.
+
+### Requirements
+
+- **Trace propagation**: each payment flow (webhook dispatch, retry attempt,
+  manual re-trigger) is assigned a unique trace ID that is propagated through
+  every step of that flow and included in all related event log entries.
+- **Span instrumentation**: key operations within a payment flow — initial
+  dispatch, each retry attempt, status transitions, and final resolution — are
+  recorded as individual spans with start time, duration, and outcome.
+- **Trace viewer**: the UI includes a trace viewer panel where a merchant or
+  developer can select a trace ID (from the event log or by direct entry) and
+  see the full ordered span timeline for that payment flow.
+- **Error highlighting**: spans that represent a failure (non-2xx HTTP status or
+  exhausted state) are visually distinguished in the trace viewer to allow rapid
+  identification of the failure point.
+- **Correlation with event log**: clicking a span in the trace viewer filters
+  the event log to show only entries belonging to that trace, and clicking an
+  event log entry highlights its corresponding span in the trace viewer.
+- **Simulator compatibility**: the webhook delivery simulator emits trace IDs
+  and span data using the same shape as the real delivery mechanism, so the
+  trace viewer works identically in dev and production modes.
+- **No external dependencies**: tracing is implemented client-side; it must not
+  call any external tracing back-end or require a running backend service.
+- **Test coverage**: unit tests cover trace ID propagation, span recording, and
+  the correlation between the event log and the trace viewer.
+
 ## Webhook delivery simulator (developer fixture)
 
 To enable UI development and testing without external services, the repo must
@@ -85,3 +118,5 @@ include a client-side webhook delivery simulator.
 
 - No backend services in this repo (agent-forge's control plane is separate).
 - No production data or secrets.
+- No external tracing back-ends (e.g. Jaeger, Zipkin, Datadog); all tracing
+  instrumentation is client-side and self-contained.

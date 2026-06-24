@@ -16,6 +16,8 @@ pipeline designs, builds, tests, and ships them as merge-ready PRs.
 - Standard project hygiene (README, licence, sensible build config).
 - Merchants receive critical payment events reliably via webhook delivery with
   automatic retries, reducing reconciliation errors and support tickets.
+- Fraudulent transactions are scored and surfaced in real time, reducing losses
+  and chargeback rates.
 
 ## Webhook delivery & retries
 
@@ -36,6 +38,34 @@ real-time transaction webhook delivery with automatic retries.
   code, and response body excerpt, visible in the UI.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
+
+## Real-time fraud detection scoring
+
+The UI must surface a fraud risk score for each transaction so merchants can
+identify and act on suspicious activity before losses occur.
+
+### Requirements
+
+- **Per-transaction score**: every transaction displayed in the UI is annotated
+  with a fraud risk score (e.g. 0–100 or a low / medium / high band) derived
+  from a client-side scoring module.
+- **Scoring inputs**: the scoring module accepts a normalised transaction object
+  (amount, currency, merchant category, country, velocity signals) and returns a
+  numeric score and a risk band.
+- **Visual indicator**: the risk band is rendered as a colour-coded badge
+  (e.g. green / amber / red) alongside the transaction in all relevant views.
+- **High-risk alerting**: transactions that breach a configurable high-risk
+  threshold are surfaced with a prominent alert, consistent in style with the
+  webhook exhausted alert.
+- **Block / review action**: merchants can mark a high-risk transaction as
+  "blocked" or "flagged for review" directly from the UI; the action is recorded
+  in the event log with a timestamp.
+- **Scoring module isolation**: the fraud scoring logic lives in a standalone,
+  importable module with no external dependencies, mirroring the simulator
+  pattern, so it can be unit-tested independently of UI components.
+- **Test coverage**: unit tests cover score calculation for representative
+  low-, medium-, and high-risk inputs, threshold boundary behaviour, and the
+  block/flag actions updating the event log.
 
 ## Event log filtering
 

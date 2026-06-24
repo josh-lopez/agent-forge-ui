@@ -1,0 +1,142 @@
+/* Layout & styling for the merchant view (metrics dashboard + event log).
+ * Scoped to the #app subtree so the existing landing-page styles in the
+ * repo-root style.css are untouched. Targets a standard desktop viewport
+ * (>=1280px) with no horizontal scroll and no overlapping elements. */
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.merchant-view {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.merchant-view * {
+  box-sizing: border-box;
+}
+
+/* ── Metrics dashboard ─────────────────────────────────────────────────── */
+.metrics-dashboard h2,
+.event-log h2 {
+  text-align: left;
+  font-size: 1.25rem;
+  margin: 0 0 12px;
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+}
+
+.metric-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 16px;
+  border: 1px solid #d9dce1;
+  border-radius: 8px;
+  background: #fafbfc;
+}
+
+.metric-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #555b66;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* ── Event log ─────────────────────────────────────────────────────────── */
+.log-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.log-filter-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.8rem;
+  color: #555b66;
+}
+
+.log-filter-indicator {
+  align-self: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  background: #1d6fed;
+  color: #fff;
+  font-size: 0.75rem;
+}
+
+.log-entries {
+  max-height: 360px;
+  overflow-y: auto;
+  border: 1px solid #d9dce1;
+  border-radius: 8px;
+}
+
+.log-entry {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 16px;
+  padding: 10px 14px;
+  border-bottom: 1px solid #eceef1;
+  font-size: 0.875rem;
+}
+
+.log-entry:last-child {
+  border-bottom: none;
+}
+
+.log-entry-meta {
+  font-variant-numeric: tabular-nums;
+  color: #333a44;
+}
+
+.log-entry-body {
+  flex: 1 1 200px;
+  color: #555b66;
+  word-break: break-word;
+}
+
+.log-entry.status-delivered {
+  border-left: 4px solid #1f9d55;
+}
+
+.log-entry.status-failed {
+  border-left: 4px solid #d97706;
+}
+
+.log-entry.status-exhausted {
+  border-left: 4px solid #d23030;
+}
+
+.log-entry.status-pending {
+  border-left: 4px solid #6b7280;
+}
+
+.exhausted-alert {
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: #fdecec;
+  border: 1px solid #d23030;
+  color: #8a1c1c;
+  font-weight: 600;
+}

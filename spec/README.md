@@ -16,6 +16,8 @@ pipeline designs, builds, tests, and ships them as merge-ready PRs.
 - Standard project hygiene (README, licence, sensible build config).
 - Merchants receive critical payment events reliably via webhook delivery with
   automatic retries, reducing reconciliation errors and support tickets.
+- Duplicate charges from retried payment requests are prevented, reducing
+  revenue leakage and customer disputes.
 
 ## Webhook delivery & retries
 
@@ -36,6 +38,35 @@ real-time transaction webhook delivery with automatic retries.
   code, and response body excerpt, visible in the UI.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
+
+## Idempotency keys for payment requests
+
+To prevent duplicate charges caused by retried or replayed payment requests,
+every payment request must carry an idempotency key.
+
+### Requirements
+
+- **Key generation**: a unique idempotency key (e.g. a UUID v4) is generated
+  client-side for each new payment request before it is submitted.
+- **Key attachment**: the key is attached to the payment request payload (e.g.
+  as an `idempotencyKey` field) so that the receiving service can detect and
+  deduplicate repeated submissions of the same request.
+- **Retry reuse**: when a payment request is retried (e.g. after a network
+  error or timeout), the same idempotency key from the original attempt is
+  reused — a new key must not be generated for a retry of the same logical
+  request.
+- **UI visibility**: the idempotency key for each payment request is shown in
+  the payment detail / event log view so merchants and support staff can
+  cross-reference it with backend records.
+- **Duplicate detection feedback**: if the UI receives a duplicate-detected
+  response (e.g. HTTP 409 or an equivalent signal from the simulator), it
+  surfaces a clear, non-error informational message explaining that the request
+  was already processed and no charge was made.
+- **Simulator support**: the webhook delivery simulator generates and attaches
+  idempotency keys for all simulated payment requests, and can simulate a
+  duplicate-detected response to exercise the feedback UI state.
+- **Test coverage**: unit tests cover key generation, retry reuse of the same
+  key, and the duplicate-detected feedback path.
 
 ## Event log filtering
 

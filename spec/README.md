@@ -37,6 +37,27 @@ real-time transaction webhook delivery with automatic retries.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
 
+## Idempotency keys for payment requests
+
+To prevent duplicate charges caused by retries, every payment request must
+carry an idempotency key.
+
+### Requirements
+
+- **Key generation**: a unique idempotency key (e.g. a UUID v4) is generated
+  client-side for each new payment request before it is submitted.
+- **Key attachment**: the key is attached to the payment request payload (e.g.
+  as an `idempotencyKey` field) so that any retry of the same request can be
+  identified and deduplicated.
+- **Retry reuse**: when a payment request is retried (e.g. after a transient
+  failure), the same idempotency key from the original attempt is reused — a
+  new key must not be generated for a retry.
+- **UI visibility**: the idempotency key for a payment request is visible in the
+  UI (e.g. in the event log or request detail view) so merchants can reference
+  it when querying duplicate-charge disputes.
+- **Test coverage**: unit tests cover key generation, key reuse on retry, and
+  key presence in the outgoing request payload.
+
 ## Event log filtering
 
 The event log must be filterable so merchants can quickly locate relevant

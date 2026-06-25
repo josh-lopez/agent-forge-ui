@@ -140,12 +140,13 @@ deploy will go live:
 If you need to build and publish from your machine instead of CI, build with the
 correct base path so asset URLs resolve correctly:
 
-```bash
-# Build with the GitHub Pages sub-path.
-VITE_BASE="/agent-forge-ui/" npm run build
+Build with the GitHub Pages sub-path:
 
-# The deployable site is now in ./dist
+```bash
+VITE_BASE="/agent-forge-ui/" npm run build
 ```
+
+The deployable site is now in `./dist`.
 
 Then upload the contents of `dist/` to your static host. For any non-Pages
 static host (Netlify, Vercel, S3 + CloudFront, etc.), set the build command to

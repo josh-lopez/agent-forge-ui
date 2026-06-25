@@ -90,13 +90,32 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Testing
 
-Run the test suite:
+### Running tests
+
+Run the full test suite from the repository root:
 
 ```bash
 npm test
 ```
 
-This executes all tests in the `tests/` directory.
+This runs the [Vitest](https://vitest.dev/) unit-test suite (in a `jsdom`
+browser-like environment) followed by the legacy shell-based checks in the
+`tests/` directory. The command exits non-zero if any test fails, which is what
+the CI pipeline gates on.
+
+Vitest reuses the project's `vite.config.ts` (via `vitest.config.ts`), so path
+aliases and Vite-specific imports resolve the same way they do in the app build.
+
+To run only the Vitest unit tests, or to re-run them automatically on file
+changes during development:
+
+```bash
+npm run test:unit    # single Vitest run
+npm run test:watch   # watch mode
+```
+
+Vitest unit tests live alongside the shell tests under `tests/` and use the
+`*.test.ts` / `*.spec.ts` naming convention.
 
 ## Deployment
 

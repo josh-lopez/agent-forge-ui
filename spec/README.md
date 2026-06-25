@@ -37,6 +37,36 @@ real-time transaction webhook delivery with automatic retries.
 - **Alerting**: when a webhook reaches the exhausted state the UI surfaces a
   prominent alert so the merchant is aware without polling.
 
+## Webhook delivery metrics dashboard
+
+The UI must include a metrics dashboard component that gives merchants an
+at-a-glance view of aggregate delivery reliability, without requiring them to
+scan the full event log.
+
+### Requirements
+
+- **Aggregate success rate**: the dashboard displays the overall delivery
+  success rate (percentage of attempts that reached `delivered`) across all
+  event types, updated reactively as new delivery events arrive.
+- **Average retry count**: the dashboard shows the mean number of retry
+  attempts per webhook, broken down by event type, so merchants can identify
+  event types that are disproportionately unreliable.
+- **Time-to-delivery stats**: the dashboard surfaces time-to-delivery
+  statistics (e.g. median and 95th-percentile) per event type, measured from
+  the initial delivery attempt to the first successful delivery.
+- **Event-type breakdown**: all metrics are presented both as an overall
+  aggregate and segmented by event type in a single, scannable view.
+- **Reactive updates**: metrics recalculate automatically whenever the
+  underlying delivery-event data changes (e.g. a new attempt is logged or a
+  webhook transitions state); no manual refresh is required.
+- **Simulator compatibility**: the dashboard works correctly with data produced
+  by the webhook delivery simulator so developers can exercise all metric states
+  without a live backend.
+- **Test coverage**: unit tests cover correct calculation of success rate,
+  average retry count, and time-to-delivery for a representative fixture
+  dataset, including edge cases (zero deliveries, 100 % failure, single
+  attempt).
+
 ## Event log filtering
 
 The event log must be filterable so merchants can quickly locate relevant

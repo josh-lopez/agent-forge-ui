@@ -17,10 +17,15 @@ permissions:
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment; queued runs supersede in-progress ones.
+# Allow only one concurrent deployment. We deliberately do NOT cancel an
+# in-progress run: the actions/deploy-pages step errors out ("Canceling since a
+# higher priority deployment request exists") when a queued run supersedes the
+# one that is actively deploying, which turns the trunk red. Letting in-flight
+# deploys finish (and queuing the next one) is GitHub's own recommended setting
+# for Pages deployments.
 concurrency:
   group: pages
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 jobs:
   build:
@@ -43,13 +48,19 @@ jobs:
         # Gate the deploy on a green test suite — never publish untested code.
         run: npm test
 
+      - name: Configure GitHub Pages
+        id: pages
+        # enablement: true provisions the Pages site automatically on the first
+        # run so the workflow does not fail with "Get Pages site failed" when
+        # Pages has not yet been turned on manually in repository Settings.
+        uses: actions/configure-pages@v5
+        with:
+          enablement: true
+
       - name: Build
         # VITE_BASE makes Vite emit asset URLs under the project-site sub-path
         # (https://<owner>.github.io/<repo>/). It is derived from the repo name.
         run: VITE_BASE="/${GITHUB_REPOSITORY#*/}/" npm run build
-
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

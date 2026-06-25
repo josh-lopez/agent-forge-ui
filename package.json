@@ -13,11 +13,13 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "lint:html": "htmlhint --config .htmlhintrc index.html",
+    "test:unit": "node_modules/.bin/vitest run",
     "test": "bash tests/run_all.sh"
   },
   "devDependencies": {
     "htmlhint": "^1.1.4",
     "typescript": "^5.4.5",
-    "vite": "^5.2.11"
+    "vite": "^5.2.11",
+    "vitest": "^1.6.1"
   }
 }

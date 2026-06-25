@@ -58,6 +58,22 @@ delivery attempts without scrolling through the full history.
 - **Test coverage**: unit tests cover range applied, range cleared, and boundary
   entries included/excluded.
 
+### Event-type filter
+
+- **Control**: a multi-select (or equivalent) control lists all event types
+  present in the log (e.g. `payment.created`, `refund.issued`).
+- **Filtering behaviour**: selecting one or more event types limits the visible
+  log entries to those whose event type matches the selection.
+- **Clear / reset**: deselecting all types, or choosing "All", restores the full
+  unfiltered view for this dimension.
+- **Active-filter indicator**: while a non-default selection is active, a
+  visible indicator confirms the filter is active; a clear-all control removes
+  it in one action.
+- **Filter composition**: the event-type filter works correctly in combination
+  with date-range and status filters.
+- **Test coverage**: unit tests cover single type selected, multiple types
+  selected, and all types cleared.
+
 ## Webhook delivery simulator (developer fixture)
 
 To enable UI development and testing without external services, the repo must

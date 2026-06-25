@@ -9,5 +9,46 @@
   <body>
     <h1>Agent Forge</h1>
     <p>Agentic engineering in action: humans file issues, agents ship PRs.</p>
+
+    <!-- Issue #46: Billing reconciliation audit log (static / mock data only) -->
+    <section id="audit-log" class="audit-log" aria-labelledby="audit-log-heading">
+      <h2 id="audit-log-heading">Billing Reconciliation Audit Log</h2>
+
+      <div class="audit-log-controls">
+        <label for="status-filter">Filter by status</label>
+        <select id="status-filter" class="audit-log-filter">
+          <option value="all">All statuses</option>
+          <option value="matched">Matched</option>
+          <option value="discrepancy">Discrepancy</option>
+          <option value="resolved">Resolved</option>
+        </select>
+
+        <label for="sort-order">Sort by date</label>
+        <select id="sort-order" class="audit-log-sort">
+          <option value="desc">Newest first</option>
+          <option value="asc">Oldest first</option>
+        </select>
+      </div>
+
+      <table class="audit-log-table">
+        <thead>
+          <tr>
+            <th scope="col">Timestamp</th>
+            <th scope="col">Event Type</th>
+            <th scope="col">Amount</th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody id="audit-log-body">
+          <!-- rows injected from mock data by audit-log.js -->
+        </tbody>
+      </table>
+
+      <p id="audit-log-empty" class="audit-log-empty" hidden>
+        No reconciliation events match the current filter.
+      </p>
+    </section>
+
+    <script src="audit-log.js"></script>
   </body>
 </html>

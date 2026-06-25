@@ -90,13 +90,27 @@ For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Testing
 
-Run the test suite:
+First, make sure dependencies are installed:
+
+```bash
+npm install
+```
+
+### Run the full test suite
 
 ```bash
 npm test
 ```
 
-This executes all tests in the `tests/` directory.
+This executes all scripts in the `tests/` directory via `tests/run_all.sh`.
+
+### Run the HTML lint check
+
+```bash
+npm run lint:html
+```
+
+This runs [HTMLHint](https://htmlhint.com/) against `index.html` (and any `*.html` files under `src/`) using the rules defined in `.htmlhintrc`. The same check is included automatically when you run `npm test`.
 
 ## Deployment
 

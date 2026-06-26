@@ -117,6 +117,75 @@ npm run test:watch   # watch mode
 Vitest unit tests live alongside the shell tests under `tests/` and use the
 `*.test.ts` / `*.spec.ts` naming convention.
 
+## Webhook delivery simulator (developer fixture)
+
+To develop and test the webhook-delivery UI without a running backend or any
+external service, the repo ships a **client-side webhook delivery simulator**
+(`src/webhookSimulator.ts`). It emits the exact delivery-event shape used by the
+real delivery mechanism, progresses through the full exponential back-off retry
+schedule, and never makes a real network request.
+
+### Activation
+
+The simulator is **dev-mode only** and is activated by an environment flag. It
+is inactive in production builds, where the flag is unset and the module is
+tree-shaken out of the bundle:
+
+```bash
+VITE_USE_SIMULATOR=true npm run dev
+```
+
+Guard any code that imports the simulator behind `isSimulatorEnabled()` so the
+bundler can eliminate it from production:
+
+```ts
+import { isSimulatorEnabled } from './webhookSimulator';
+
+if (isSimulatorEnabled()) {
+  const { runSimulation } = await import('./webhookSimulator');
+  // …wire simulated events into the UI store…
+}
+```
+
+### API
+
+`runSimulation(options)` drives one simulated webhook delivery and returns a
+`Promise<DeliveryEvent>` that resolves with the terminal (`delivered` or
+`exhausted`) event. Options:
+
+| Option        | Type                          | Default            | Notes                                                                 |
+| ------------- | ----------------------------- | ------------------ | --------------------------------------------------------------------- |
+| `successRate` | `number` (0.0–1.0)            | _(required)_       | Per-attempt success probability. Out-of-range values throw `RangeError`. |
+| `onEvent`     | `(e: DeliveryEvent) => void`  | _(required)_       | Called for every emitted event, in order.                             |
+| `webhookId`   | `string`                      | generated          | Identifier stamped on emitted events.                                 |
+| `eventType`   | `string`                      | `payment.created`  | Event type stamped on emitted events.                                 |
+| `maxAttempts` | `number`                      | `6` (schedule len) | Configurable maximum attempt count (initial + retries).               |
+| `random`      | `() => number`                | `Math.random`      | Injectable RNG for deterministic tests.                               |
+| `clock`       | `Clock`                       | real `setTimeout`  | Injectable scheduler/clock for fake-timer tests.                      |
+
+The simulator schedules attempts on the spec's exponential back-off retry
+schedule — immediately, then 1 min, 5 min, 30 min, 2 h, 8 h
+(`RETRY_SCHEDULE_MS` in `src/deliveryEvents.ts`). Each attempt succeeds with
+probability `successRate`: on success it emits a `delivered` event and stops; on
+failure it emits a `failed` event and schedules the next retry; once
+`maxAttempts` failures accumulate it emits a terminal `exhausted` event.
+
+### Event shape
+
+Emitted events conform to the shared `DeliveryEvent` type
+(`src/deliveryEvents.ts`), the single source of truth shared with the real
+delivery mechanism:
+
+| Field                 | Type                                              | Description                                            |
+| --------------------- | ------------------------------------------------- | ------------------------------------------------------ |
+| `webhookId`           | `string`                                          | Identifier of the webhook the attempt belongs to.      |
+| `eventType`           | `string`                                          | Triggering event type, e.g. `payment.created`.         |
+| `status`              | `'pending' \| 'failed' \| 'delivered' \| 'exhausted'` | Lifecycle status of this attempt.                  |
+| `attempt`             | `number`                                          | 1-based attempt number.                                |
+| `timestamp`           | `string` (ISO-8601)                               | When the attempt resolved.                             |
+| `httpStatusCode`      | `number \| null`                                  | (Simulated) HTTP status code, e.g. 200 / 500.          |
+| `responseBodyExcerpt` | `string`                                          | Short excerpt of the (simulated) response body.        |
+
 ## Deployment
 
 The application is deployed to **GitHub Pages** as a project site, served from

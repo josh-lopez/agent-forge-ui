@@ -10,3 +10,50 @@ body {
 h1 {
   text-align: center;
 }
+
+/* ── Exhausted-webhook alert banners ──────────────────────────────────────── */
+
+#exhausted-alerts {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.exhausted-alert {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.5rem;
+  background-color: #fff3cd;
+  border: 2px solid #e65c00;
+  border-left: 6px solid #e65c00;
+  border-radius: 4px;
+  color: #7a3000;
+  font-weight: 600;
+}
+
+.exhausted-alert__icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.exhausted-alert__message {
+  flex: 1;
+}
+
+.exhausted-alert__dismiss {
+  background: none;
+  border: 1px solid #e65c00;
+  border-radius: 3px;
+  color: #7a3000;
+  cursor: pointer;
+  font-size: 0.875rem;
+  padding: 0.125rem 0.375rem;
+  flex-shrink: 0;
+}
+
+.exhausted-alert__dismiss:hover {
+  background-color: #e65c00;
+  color: #fff;
+}

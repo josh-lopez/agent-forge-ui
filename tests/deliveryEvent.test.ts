@@ -12,7 +12,7 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { isDeliveryEvent } from '../src/deliveryEvent.ts';
+import { isDeliveryEvent, makeExcerpt, EXCERPT_MAX_LENGTH } from '../src/deliveryEvent.ts';
 import type { DeliveryEvent, DeliveryStatus } from '../src/deliveryEvent.ts';
 import { simulateDelivery, simulateNetworkFailure } from '../src/simulator.ts';
 
@@ -271,5 +271,30 @@ describe('Shared type – no special-case branching (AC5)', () => {
 
     expect(processEvent(simEvent)).toMatch(/^payment\.created:delivered:1$/);
     expect(processEvent(realEvent)).toMatch(/^payment\.created:delivered:1$/);
+  });
+});
+
+// ── Shared response-body truncation contract ──────────────────────────────────
+// Both the real mechanism and the simulator build excerpts via the shared
+// `makeExcerpt` helper, so excerpts truncate identically and UI rendering is
+// consistent regardless of which source produced the event.
+
+describe('Shared excerpt truncation contract', () => {
+  it('makeExcerpt truncates to EXCERPT_MAX_LENGTH characters', () => {
+    const longBody = 'x'.repeat(EXCERPT_MAX_LENGTH + 50);
+    const excerpt = makeExcerpt(longBody);
+    expect(excerpt.length).toBe(EXCERPT_MAX_LENGTH);
+  });
+
+  it('makeExcerpt leaves short bodies unchanged', () => {
+    expect(makeExcerpt('{"ok":true}')).toBe('{"ok":true}');
+    expect(makeExcerpt('')).toBe('');
+  });
+
+  it('every emitted excerpt respects EXCERPT_MAX_LENGTH', () => {
+    const { events } = simulateDelivery({ successRate: 0, maxAttempts: 3 });
+    for (const event of events) {
+      expect(event.responseBodyExcerpt.length).toBeLessThanOrEqual(EXCERPT_MAX_LENGTH);
+    }
   });
 });

@@ -12,6 +12,7 @@
  * outcome as a `DeliveryEvent`.
  */
 
+import { makeExcerpt } from './deliveryEvent.ts';
 import type { DeliveryEvent, DeliveryStatus } from './deliveryEvent.ts';
 
 /** Exponential back-off retry schedule (delays in milliseconds). */
@@ -23,9 +24,6 @@ export const RETRY_SCHEDULE_MS: readonly number[] = [
   7_200_000,   // attempt 5 – 2 h
   28_800_000,  // attempt 6 – 8 h
 ];
-
-/** Maximum number of characters to retain from a response body. */
-const EXCERPT_MAX_LENGTH = 200;
 
 export interface DeliveryOptions {
   /** Target URL to POST the webhook payload to. */
@@ -121,7 +119,7 @@ async function attemptDelivery(opts: AttemptOptions): Promise<DeliveryEvent> {
     httpStatusCode = response.status;
 
     const rawBody = await response.text().catch(() => '');
-    responseBodyExcerpt = rawBody.slice(0, EXCERPT_MAX_LENGTH);
+    responseBodyExcerpt = makeExcerpt(rawBody);
 
     if (response.ok) {
       status = 'delivered';

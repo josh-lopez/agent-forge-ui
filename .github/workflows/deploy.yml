@@ -58,7 +58,7 @@ jobs:
         # "Get Pages site failed" / "Resource not accessible by integration",
         # turning the trunk red. Pages must instead be enabled once, manually,
         # under Settings -> Pages -> "Build and deployment" -> Source:
-        # "GitHub Actions" (see docs/deploy.md). configure-pages then just reads
+        # "GitHub Actions" (a one-time manual step). configure-pages then reads
         # the existing site config so the build/upload/deploy steps can run.
         uses: actions/configure-pages@v5
 

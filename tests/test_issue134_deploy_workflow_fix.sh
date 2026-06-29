@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Tests for Issue #134: CI failing on main — Deploy to GitHub Pages
+# Tests for Issue #138: CI failing on main — Deploy to GitHub Pages
 #
-# The two root causes of the original failure were:
+# Root causes addressed by the deploy workflow fixes:
 #   1. cancel-in-progress: true caused the deploy-pages step to error with
 #      "Canceling since a higher priority deployment request exists" when a
-#      queued run superseded an in-flight deploy.
-#   2. configure-pages ran AFTER the build step, so the first-ever run failed
-#      with "Get Pages site failed" because Pages had not been provisioned yet.
-#      Moving configure-pages BEFORE the build step (with enablement: true)
-#      auto-provisions the site on the first run.
+#      queued run superseded an in-flight deploy. Fixed by setting
+#      cancel-in-progress: false.
+#   2. configure-pages was given 'enablement: true', which makes the action
+#      call the repository-settings API to turn Pages on. The default
+#      GITHUB_TOKEN only carries 'pages: write' (not 'administration: write'),
+#      so that call is rejected ("Get Pages site failed" / "Resource not
+#      accessible by integration"), turning the trunk red. Fixed by removing
+#      'enablement: true'; Pages is enabled once manually in repo Settings.
 #
 # Acceptance criteria tested:
 #   AC1 – The workflow file is valid and all required jobs/steps are present.
-#   AC2 – The fix is minimal: only the two targeted changes were made.
+#   AC2 – The fix is minimal: only the targeted changes were made.
 #   AC3 – The failure can be reproduced / verified locally via workflow linting.
 
 set -uo pipefail
@@ -65,7 +68,7 @@ fi
 # 'pages: write' (not 'administration: write'), so that call is rejected
 # ("Get Pages site failed" / "Resource not accessible by integration"),
 # turning the trunk red. Pages is instead enabled once, manually, in repo
-# Settings -> Pages -> Source: "GitHub Actions" (see docs/deploy.md), and
+# Settings -> Pages -> Source: "GitHub Actions" (a one-time manual step), and
 # configure-pages simply reads the existing site config.
 
 # Verify configure-pages does NOT use enablement: true (the #138 root cause).

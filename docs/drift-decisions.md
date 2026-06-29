@@ -6,6 +6,45 @@ Each entry explains what was audited, what the reviewer found, and the outcome.
 
 ---
 
+## Issue #176 — Spec drift since issue #11 (audited 2026-06-20)
+
+### What issue #11 shipped
+
+Issue #11 delivered a GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+that triggers on push/PR to `main`, installs dependencies (`npm ci`),
+type-checks (`npm run typecheck`), builds (`npm run build`), and runs the full
+test suite (`npm test`).
+
+### What the spec says now
+
+`spec/README.md` has grown substantially since issue #11 shipped. The sections
+that are **new** relative to the CI-workflow scope of #11 are:
+
+| Spec section | Status |
+|---|---|
+| Webhook delivery & retries | New feature area — not part of #11 |
+| Webhook delivery metrics dashboard | New feature area — not part of #11 |
+| Event log filtering — Date-range filter | New feature area — not part of #11 |
+| Event log filtering — Event-type filter | New feature area — not part of #11 |
+| Webhook delivery simulator | New feature area — not part of #11 |
+
+### Decision: **won't-do** (no follow-up needed for #11 specifically)
+
+Issue #11 delivered generic build-and-test CI infrastructure, not a
+feature-specific workflow. The CI workflow runs `npm test`, which automatically
+covers all new features as they are added and tested. The spec's new feature
+sections do not impose any new requirements on the CI workflow itself — they
+are implemented and tested by other issues (#92, #95, #97, etc.). The CI
+workflow continues to correctly gate PRs on a green build and test suite.
+
+**No changes to the #11 implementation are required.** The drift is
+intentional: the spec grew to describe new product capabilities that are
+independent of the CI infrastructure #11 put in place. The CI workflow is
+spec-compliant and will remain so as the product grows, provided new features
+continue to be covered by `npm test`.
+
+---
+
 ## Issue #177 — Spec drift since issue #12 (audited 2026-06-29)
 
 ### What issue #12 shipped

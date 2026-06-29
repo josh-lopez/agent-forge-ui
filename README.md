@@ -88,6 +88,20 @@ This serves the production build locally so you can verify it works before deplo
 
 For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+### Webhook delivery simulator (dev only)
+
+During development you can activate a client-side webhook delivery simulator to
+exercise every delivery state without a backend. It is gated behind the
+`VITE_SIMULATOR` flag and is excluded from production builds, so it adds no
+bytes to the shipped bundle and makes no real network calls. To enable it:
+
+```bash
+VITE_SIMULATOR=true npm run dev
+```
+
+See [docs/simulator.md](docs/simulator.md) for the full activation guide and an
+explanation of how it is kept out of production builds.
+
 ## Testing
 
 ### Running tests

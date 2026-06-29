@@ -50,12 +50,17 @@ jobs:
 
       - name: Configure GitHub Pages
         id: pages
-        # enablement: true provisions the Pages site automatically on the first
-        # run so the workflow does not fail with "Get Pages site failed" when
-        # Pages has not yet been turned on manually in repository Settings.
+        # We do NOT pass `enablement: true` here. That option makes the action
+        # issue a repository-settings API call to turn Pages on, which the
+        # default GITHUB_TOKEN is not permitted to do (it only carries
+        # `pages: write`, not the `administration: write` scope required to
+        # change repo settings). On this repo that call failed with
+        # "Get Pages site failed" / "Resource not accessible by integration",
+        # turning the trunk red. Pages must instead be enabled once, manually,
+        # under Settings -> Pages -> "Build and deployment" -> Source:
+        # "GitHub Actions" (see docs/deploy.md). configure-pages then just reads
+        # the existing site config so the build/upload/deploy steps can run.
         uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - name: Build
         # VITE_BASE makes Vite emit asset URLs under the project-site sub-path

@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
-# Tests for Issue #134: CI failing on main — Deploy to GitHub Pages
+# Tests for Issue #138: CI failing on main — Deploy to GitHub Pages
 #
-# The two root causes of the original failure were:
+# Root causes addressed by the deploy workflow fixes:
 #   1. cancel-in-progress: true caused the deploy-pages step to error with
 #      "Canceling since a higher priority deployment request exists" when a
-#      queued run superseded an in-flight deploy.
-#   2. configure-pages ran AFTER the build step, so the first-ever run failed
-#      with "Get Pages site failed" because Pages had not been provisioned yet.
-#      Moving configure-pages BEFORE the build step (with enablement: true)
-#      auto-provisions the site on the first run.
+#      queued run superseded an in-flight deploy. Fixed by setting
+#      cancel-in-progress: false.
+#   2. configure-pages was given 'enablement: true', which makes the action
+#      call the repository-settings API to turn Pages on. The default
+#      GITHUB_TOKEN only carries 'pages: write' (not 'administration: write'),
+#      so that call is rejected ("Get Pages site failed" / "Resource not
+#      accessible by integration"), turning the trunk red. Fixed by removing
+#      'enablement: true'; Pages is enabled once manually in repo Settings.
 #
 # Acceptance criteria tested:
 #   AC1 – The workflow file is valid and all required jobs/steps are present.
-#   AC2 – The fix is minimal: only the two targeted changes were made.
+#   AC2 – The fix is minimal: only the targeted changes were made.
 #   AC3 – The failure can be reproduced / verified locally via workflow linting.
 
 set -uo pipefail
@@ -58,17 +61,21 @@ else
   pass "Fix1 – 'cancel-in-progress: true' has been removed"
 fi
 
-# ── Fix 2: configure-pages runs BEFORE the build step ────────────────────────
-# The original failure: on the very first run, Pages had not been provisioned,
-# so configure-pages (which ran after the build) returned "Get Pages site
-# failed". Moving it before the build — with enablement: true — auto-provisions
-# the site so the build step can succeed.
+# ── Fix 2: configure-pages must NOT pass 'enablement: true' ──────────────────
+# Issue #138: the run on commit ff8c86843b79 failed because configure-pages was
+# given 'enablement: true', which makes the action issue a repository-settings
+# API call to turn Pages on. The default GITHUB_TOKEN only carries
+# 'pages: write' (not 'administration: write'), so that call is rejected
+# ("Get Pages site failed" / "Resource not accessible by integration"),
+# turning the trunk red. Pages is instead enabled once, manually, in repo
+# Settings -> Pages -> Source: "GitHub Actions" (a one-time manual step), and
+# configure-pages simply reads the existing site config.
 
-# Verify configure-pages uses enablement: true.
+# Verify configure-pages does NOT use enablement: true (the #138 root cause).
 if grep -A3 'configure-pages' "$DEPLOY_WF" | grep -q 'enablement: true'; then
-  pass "Fix2 – configure-pages step has 'enablement: true' (auto-provisions Pages on first run)"
+  fail "Fix2 – configure-pages still passes 'enablement: true' (the #138 root cause; the token cannot enable Pages)"
 else
-  fail "Fix2 – configure-pages step does NOT have 'enablement: true'; first-run provisioning will fail"
+  pass "Fix2 – configure-pages does NOT pass 'enablement: true' (avoids the unauthorised Pages-enable API call)"
 fi
 
 # Verify configure-pages appears before the Build step in the file.

@@ -8,11 +8,11 @@
   },
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "dev": "vite",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit",
-    "lint:html": "htmlhint --config .htmlhintrc index.html",
+    "build": "node_modules/.bin/vite build",
+    "dev": "node_modules/.bin/vite",
+    "preview": "node_modules/.bin/vite preview",
+    "typecheck": "node_modules/.bin/tsc --noEmit",
+    "lint:html": "node_modules/.bin/htmlhint --config .htmlhintrc index.html",
     "test": "bash tests/run_all.sh"
   },
   "devDependencies": {

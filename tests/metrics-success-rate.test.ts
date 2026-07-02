@@ -55,18 +55,18 @@ describe('calculateSuccessRate', () => {
   });
 
   // AC6: 100% success
-  it('returns 100 when all attempts have succeeded', () => {
+  it('returns 1 when all attempts have succeeded', () => {
     const events: DeliveryEvent[] = [
       makeEvent('1', 'delivered'),
       makeEvent('2', 'delivered'),
       makeEvent('3', 'delivered'),
     ];
-    expect(calculateSuccessRate(events)).toBe(100);
+    expect(calculateSuccessRate(events)).toBe(1);
   });
 
   // AC7: single attempt — delivered
-  it('returns 100 for a single delivered attempt', () => {
-    expect(calculateSuccessRate([makeEvent('1', 'delivered')])).toBe(100);
+  it('returns 1 for a single delivered attempt', () => {
+    expect(calculateSuccessRate([makeEvent('1', 'delivered')])).toBe(1);
   });
 
   // AC7: single attempt — failed
@@ -75,8 +75,8 @@ describe('calculateSuccessRate', () => {
   });
 
   // AC1: representative mixed fixture
-  it('calculates the correct percentage for a mixed fixture', () => {
-    // 3 delivered out of 6 total → 50%
+  it('calculates the correct fraction for a mixed fixture', () => {
+    // 3 delivered out of 6 total → 0.5
     const events: DeliveryEvent[] = [
       makeEvent('1', 'delivered'),
       makeEvent('2', 'delivered'),
@@ -85,11 +85,11 @@ describe('calculateSuccessRate', () => {
       makeEvent('5', 'failed'),
       makeEvent('6', 'exhausted'),
     ];
-    expect(calculateSuccessRate(events)).toBe(50);
+    expect(calculateSuccessRate(events)).toBe(0.5);
   });
 
-  // AC1: non-round percentage
-  it('calculates a non-round percentage correctly (1 of 3 = 33.33…%)', () => {
+  // AC1: non-round fraction
+  it('calculates a non-round fraction correctly (1 of 3 ≈ 0.333…)', () => {
     const events: DeliveryEvent[] = [
       makeEvent('1', 'delivered'),
       makeEvent('2', 'failed'),
@@ -97,8 +97,8 @@ describe('calculateSuccessRate', () => {
     ];
     const rate = calculateSuccessRate(events);
     expect(rate).not.toBeNull();
-    // 1/3 * 100 ≈ 33.333…
-    expect(rate!).toBeCloseTo(33.333, 2);
+    // 1/3 ≈ 0.333…
+    expect(rate!).toBeCloseTo(1 / 3, 5);
   });
 
   // AC2: success rate is computed across all event types combined
@@ -109,8 +109,8 @@ describe('calculateSuccessRate', () => {
       makeEvent('3', 'failed',    'payment.created'),
       makeEvent('4', 'failed',    'dispute.opened'),
     ];
-    // 2 delivered out of 4 total → 50%
-    expect(calculateSuccessRate(events)).toBe(50);
+    // 2 delivered out of 4 total → 0.5
+    expect(calculateSuccessRate(events)).toBe(0.5);
   });
 
   // AC8: works with simulator-shaped data (pending status counts as non-delivered)
@@ -119,8 +119,8 @@ describe('calculateSuccessRate', () => {
       makeEvent('1', 'delivered'),
       makeEvent('2', 'pending'),
     ];
-    // 1 delivered out of 2 → 50%
-    expect(calculateSuccessRate(events)).toBe(50);
+    // 1 delivered out of 2 → 0.5
+    expect(calculateSuccessRate(events)).toBe(0.5);
   });
 });
 
@@ -131,21 +131,21 @@ describe('formatSuccessRate', () => {
     expect(formatSuccessRate(null)).toBe('—');
   });
 
-  it('returns "0%" for 0', () => {
-    expect(formatSuccessRate(0)).toBe('0%');
+  it('returns "0.0%" for 0', () => {
+    expect(formatSuccessRate(0)).toBe('0.0%');
   });
 
-  it('returns "100%" for 100', () => {
-    expect(formatSuccessRate(100)).toBe('100%');
+  it('returns "100.0%" for 1', () => {
+    expect(formatSuccessRate(1)).toBe('100.0%');
   });
 
-  it('returns "50%" for 50', () => {
-    expect(formatSuccessRate(50)).toBe('50%');
+  it('returns "50.0%" for 0.5', () => {
+    expect(formatSuccessRate(0.5)).toBe('50.0%');
   });
 
   it('rounds to one decimal place', () => {
-    // 1/3 * 100 ≈ 33.333… → '33.3%'
-    expect(formatSuccessRate(33.333)).toBe('33.3%');
+    // 1/3 ≈ 0.333… → '33.3%'
+    expect(formatSuccessRate(1 / 3)).toBe('33.3%');
   });
 });
 
@@ -186,26 +186,26 @@ describe('mountMetricsDashboard', () => {
     let valueEl = container.querySelector('[data-testid="success-rate-value"]');
     expect(valueEl!.textContent!.trim()).toBe('—');
 
-    // Provide 2 delivered out of 2 → 100%
+    // Provide 2 delivered out of 2 → 100.0%
     handle.update([makeEvent('1', 'delivered'), makeEvent('2', 'delivered')]);
     valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('100%');
+    expect(valueEl!.textContent!.trim()).toBe('100.0%');
   });
 
   // AC5: 100% failure
-  it('displays "0%" when all attempts have failed', () => {
+  it('displays "0.0%" when all attempts have failed', () => {
     const handle = mountMetricsDashboard(container);
     handle.update([makeEvent('1', 'failed'), makeEvent('2', 'failed')]);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('0%');
+    expect(valueEl!.textContent!.trim()).toBe('0.0%');
   });
 
   // AC6: 100% success
-  it('displays "100%" when all attempts have succeeded', () => {
+  it('displays "100.0%" when all attempts have succeeded', () => {
     const handle = mountMetricsDashboard(container);
     handle.update([makeEvent('1', 'delivered'), makeEvent('2', 'delivered')]);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('100%');
+    expect(valueEl!.textContent!.trim()).toBe('100.0%');
   });
 
   // AC1: representative mixed fixture
@@ -219,7 +219,7 @@ describe('mountMetricsDashboard', () => {
     ];
     handle.update(events);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('50%');
+    expect(valueEl!.textContent!.trim()).toBe('50.0%');
   });
 
   // AC2: aggregates across event types
@@ -231,7 +231,7 @@ describe('mountMetricsDashboard', () => {
     ];
     handle.update(events);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('50%');
+    expect(valueEl!.textContent!.trim()).toBe('50.0%');
   });
 
   // AC7: single attempt — delivered
@@ -239,7 +239,7 @@ describe('mountMetricsDashboard', () => {
     const handle = mountMetricsDashboard(container);
     handle.update([makeEvent('1', 'delivered')]);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('100%');
+    expect(valueEl!.textContent!.trim()).toBe('100.0%');
   });
 
   // AC7: single attempt — failed
@@ -247,7 +247,7 @@ describe('mountMetricsDashboard', () => {
     const handle = mountMetricsDashboard(container);
     handle.update([makeEvent('1', 'failed')]);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('0%');
+    expect(valueEl!.textContent!.trim()).toBe('0.0%');
   });
 
   // AC8: simulator-shaped data (includes httpStatus, responseBody)
@@ -275,6 +275,6 @@ describe('mountMetricsDashboard', () => {
     ];
     handle.update(simulatorEvents);
     const valueEl = container.querySelector('[data-testid="success-rate-value"]');
-    expect(valueEl!.textContent!.trim()).toBe('50%');
+    expect(valueEl!.textContent!.trim()).toBe('50.0%');
   });
 });

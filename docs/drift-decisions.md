@@ -70,8 +70,6 @@ They are noted here for visibility but are **out of scope for issue #177**
 - Event log filtering — Event-type filter UI (the filter *logic* is in
   `src/eventTypeFilter.ts` but the UI control, active-filter indicator, and
   filter composition with date-range are not yet wired up)
-- Webhook delivery simulator module (the activation docs exist in
-  `docs/simulator.md` but the `src/` simulator module itself is not yet
-  present)
+- Webhook delivery simulator module — **partially resolved**: `src/webhookSimulator.ts` now exists and implements the `WebhookSimulator` class with the `successRate` parameter (shipped via issue #156 / PR #202). The activation docs in `docs/simulator.md` have been updated to cover the `SimulatorConfig` API. Remaining gaps: UI wiring and integration with the delivery status display.
 
 Each of these should be filed as a separate issue when prioritised.

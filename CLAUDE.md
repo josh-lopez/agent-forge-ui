@@ -1,16 +1,19 @@
-# CLAUDE.md — Spec drift notes and milestone tracking
+# CLAUDE.md — Agent notes for agent-forge-ui
 
-This file records decisions made during spec-drift audits so the same drift
-does not re-trigger the weekly audit unnecessarily.
+This file records intentional spec-drift decisions and other notes for the
+agent-forge pipeline. It is maintained by the BA/Dev agents and reviewed by
+the Product Owner.
 
 ---
 
-## Issue #174 — Spec drift audit (2026-06-04 baseline)
+## Drift audit notes
+
+### Issue #174 — Spec drift audit (2026-06-04 baseline)
 
 **Audited:** `spec/README.md` against the implementation on `main` as of the
 `agent-forge/dev/issue-174` branch.
 
-### Summary
+#### Summary
 
 Issue #1 shipped a skeleton front-end (HTML, CSS, TypeScript build config,
 README, LICENSE). The spec has since grown substantially. The table below
@@ -25,7 +28,7 @@ records the coverage status of every spec section.
 | Event log filtering — event-type filter | ✅ Covered | `src/eventTypeFilter.ts` + unit tests in `tests/test_issue92_event_type_filter*.sh` cover all three spec-mandated cases (single type, multiple types, all cleared). |
 | Webhook delivery simulator | ⚠️ Partially covered | `docs/simulator.md` documents the activation contract and production-exclusion mechanism. However, the actual simulator module (`src/simulator.ts` or equivalent) does not yet exist in `src/`. A follow-up issue is required to implement the module itself. |
 
-### Gaps requiring follow-up issues
+#### Gaps requiring follow-up issues
 
 The following gaps were identified and **must each be tracked in a dedicated
 issue** before this drift can be considered resolved:
@@ -53,7 +56,7 @@ issue** before this drift can be considered resolved:
    `VITE_SIMULATOR`-gated activation path. The `docs/simulator.md` activation
    guide already exists; the module itself is missing.
 
-### Intentional non-gaps
+#### Intentional non-gaps
 
 - The **event-type filter** (`src/eventTypeFilter.ts`) is fully implemented and
   tested. No follow-up is needed for that sub-section.
@@ -62,10 +65,37 @@ issue** before this drift can be considered resolved:
 - No backend services, production data, or secrets are in scope (spec
   Non-goals). This is intentional and does not constitute drift.
 
-### Why this file exists
+#### Why this file exists
 
 The weekly drift audit compares `spec/README.md` against the implementation.
 Without this file the audit would re-fire every week for the gaps listed above
 (which are legitimately open, not accidental). Once each follow-up issue ships,
 update the table above to ✅ so the audit can confirm coverage without opening
 duplicate issues.
+
+---
+
+### Issue #176 — spec drift since #11 (won't-do)
+
+**Filed:** 2026-06-20  
+**Resolution:** Won't-do — drift is intentional and no implementation gap exists.
+
+**What #11 shipped:** A GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+that triggers on push/PR to `main`, installs dependencies (`npm ci`), type-checks
+(`npm run typecheck`), builds (`npm run build`), and runs the full test suite
+(`npm test`).
+
+**What changed in the spec since #11:** `spec/README.md` grew substantially to
+add the Webhook delivery & retries, Webhook delivery metrics dashboard, Event log
+filtering, and Webhook delivery simulator sections.
+
+**Why there is no gap:** Issue #11 delivered generic build-and-test CI
+infrastructure, not a feature-specific workflow. The CI workflow runs `npm test`,
+which automatically covers all new features as they are added and tested. The
+spec's new feature sections do not impose any new requirements on the CI workflow
+itself — they are implemented and tested by other issues (#92, #95, #97, etc.).
+The CI workflow continues to correctly gate PRs on a green build and test suite.
+
+**Conclusion:** No follow-up issue is needed. The CI workflow is spec-compliant
+and will remain so as the product grows, provided new features continue to be
+covered by `npm test`.

@@ -88,6 +88,32 @@ This serves the production build locally so you can verify it works before deplo
 
 For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+### Webhook delivery metrics dashboard
+
+The application includes a reactive metrics dashboard that displays webhook
+delivery health at a glance:
+
+- **Overall delivery success rate** — delivered attempts as a fraction of all
+  attempts.
+- **Mean retry count per webhook** — broken down by event type.
+- **Time-to-delivery statistics** — median and 95th-percentile (p95), per event
+  type.
+
+All metrics are shown both as an overall aggregate and segmented by event type
+in a single scannable view. The dashboard recalculates automatically whenever
+the underlying delivery-event data changes — no manual refresh is required.
+
+The implementation is split across two modules:
+
+| Module | Role |
+|---|---|
+| `src/metrics.ts` | Pure, side-effect-free calculation (`calculateMetrics`, formatting helpers) |
+| `src/metrics-dashboard.ts` | Reactive DOM component (`mountMetricsDashboard`, `renderMetricsDashboard`) |
+
+`mountMetricsDashboard(container, store)` subscribes to a `DeliveryEventStore`
+and re-renders the dashboard on every store update. It returns a disposer
+function that unsubscribes and clears the DOM when called.
+
 ### Webhook delivery simulator (dev only)
 
 During development you can activate a client-side webhook delivery simulator to

@@ -9,5 +9,13 @@
   <body>
     <h1>Agent Forge</h1>
     <p>Agentic engineering in action: humans file issues, agents ship PRs.</p>
+    <main id="app">
+      <!-- Webhook delivery metrics dashboard mounts here (see src/main.ts). -->
+      <section id="metrics-dashboard" aria-label="Webhook delivery metrics"></section>
+    </main>
+    <script type="module">
+      import { mountApp } from '/src/main.ts';
+      mountApp();
+    </script>
   </body>
 </html>

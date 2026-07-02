@@ -186,6 +186,31 @@ export function calculateMetrics(events: DeliveryEvent[]): MetricsReport {
   return { overall, byEventType };
 }
 
+// ── Aggregate success rate (Issue #167) ──────────────────────────────────────
+
+/**
+ * Calculate the aggregate delivery success rate across all event types.
+ *
+ * Success rate = (number of attempts with status `delivered`) /
+ *               (total number of attempts)
+ *
+ * @param events - The full list of delivery events to analyse.
+ * @returns A number in the range [0, 1] representing the fraction of attempts
+ *          that reached `delivered` status, or `null` when there are zero
+ *          attempts (to distinguish "no data" from "0% success").
+ *
+ * Note: accepts any object with a `status` field so it works with both the
+ * canonical `delivery-events.ts` shape and the legacy `deliveryEvent.ts` shape.
+ */
+export function calculateSuccessRate(events: Array<{ status: string }>): number | null {
+  if (events.length === 0) {
+    // Guard against division by zero; return null to signal "no data".
+    return null;
+  }
+  const deliveredCount = events.filter((e) => e.status === 'delivered').length;
+  return deliveredCount / events.length;
+}
+
 // ── Formatting helpers (used by the dashboard view) ──────────────────────────
 
 /** Formats a 0..1 success rate as a percentage string, e.g. "92.5%" / "—". */

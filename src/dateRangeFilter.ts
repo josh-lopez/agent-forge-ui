@@ -14,6 +14,8 @@
  * Issue #170
  */
 
+import { toEpochMillis } from './delivery-events';
+
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 /**
@@ -61,11 +63,31 @@ export function clearDateRangeFilter(): DateRange {
   return { start: '', end: '' };
 }
 
+/** One minute in milliseconds. */
+const MINUTE_MS = 60_000;
+
 /**
  * Filter log entries by date range.
  *
  * Entries whose `timestamp` falls within [start, end] (inclusive) are kept.
  * An unset bound (empty string) is treated as open-ended on that side.
+ *
+ * Comparison is performed on epoch milliseconds (via {@link toEpochMillis}),
+ * NOT on raw strings. This matters because the date-range inputs are HTML
+ * `datetime-local` controls whose values have minute precision and no timezone
+ * suffix (e.g. `2024-01-01T00:00`), whereas delivery-event timestamps are full
+ * ISO-8601 strings with seconds/millis and a `Z` suffix
+ * (e.g. `2024-01-01T00:00:00.000Z`). A lexicographic string compare would
+ * wrongly exclude boundary entries and mishandle timezones; numeric comparison
+ * fixes both.
+ *
+ * To honour the spec's "boundary entries (exactly equal to start or end) are
+ * included" rule with minute-precision inputs, the end bound is treated
+ * inclusively up to the end of the selected minute, so an event that occurs
+ * within the chosen end minute is kept.
+ *
+ * Entries with an unparseable timestamp are conservatively kept (never silently
+ * dropped by the filter).
  *
  * @param entries - The full list of log entries to filter.
  * @param range   - The active date-range filter state.
@@ -81,10 +103,21 @@ export function filterByDateRange<T extends DateFilterableEntry>(
     return entries;
   }
 
+  const startMs =
+    range.start.trim() !== '' ? toEpochMillis(range.start) : NaN;
+  // Extend the end bound to the end of its minute so minute-precision inputs
+  // include any event that falls within the selected end minute (inclusive).
+  const endMs =
+    range.end.trim() !== ''
+      ? toEpochMillis(range.end) + (MINUTE_MS - 1)
+      : NaN;
+
   return entries.filter((entry) => {
-    const ts = entry.timestamp;
-    if (range.start.trim() !== '' && ts < range.start) return false;
-    if (range.end.trim() !== '' && ts > range.end) return false;
+    const ts = toEpochMillis(entry.timestamp);
+    // Keep entries we cannot parse rather than silently dropping them.
+    if (Number.isNaN(ts)) return true;
+    if (!Number.isNaN(startMs) && ts < startMs) return false;
+    if (!Number.isNaN(endMs) && ts > endMs) return false;
     return true;
   });
 }

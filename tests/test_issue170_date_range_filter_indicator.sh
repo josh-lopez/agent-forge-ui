@@ -104,7 +104,8 @@ TSC_OUTPUT=$(
     --strict true \
     --skipLibCheck true \
     --lib "ES2020,DOM" \
-    "$FILTER_SRC" 2>&1
+    "$FILTER_SRC" \
+    "$REPO_ROOT/src/delivery-events.ts" 2>&1
 )
 TSC_EXIT=$?
 
@@ -118,6 +119,11 @@ else
 fi
 
 echo '{"type":"module"}' > "$TMPDIR_COMPILE/out/package.json"
+
+# tsc preserves extensionless relative imports (e.g. './delivery-events'), which
+# Node ESM cannot resolve. Rewrite them to point at the emitted .js files.
+sed -i "s|from ['\"]\./delivery-events['\"]|from './delivery-events.js'|g" \
+  "$TMPDIR_COMPILE/out/dateRangeFilter.js"
 
 # ── Write the Node.js test harness ───────────────────────────────────────────
 

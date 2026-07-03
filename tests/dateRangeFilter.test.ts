@@ -153,6 +153,51 @@ describe('filterByDateRange', () => {
     expect(restored).toHaveLength(4);
     expect(restored).toEqual(entries);
   });
+
+  // Regression: datetime-local inputs have minute precision and no timezone
+  // (e.g. "2024-01-01T00:00"), while delivery-event timestamps are full ISO
+  // strings with seconds/millis and a `Z` suffix (e.g. the simulator emits
+  // `new Date(...).toISOString()`). Comparison must be numeric, not
+  // lexicographic, and the end bound must include the whole selected minute so
+  // boundary entries are kept per the spec.
+  const isoEntries = [
+    { timestamp: '2024-01-10T10:00:00.000Z', id: 1 },
+    { timestamp: '2024-01-10T10:00:45.500Z', id: 2 },
+    { timestamp: '2024-01-10T10:01:30.000Z', id: 3 },
+    { timestamp: '2024-01-09T23:59:59.999Z', id: 4 },
+  ];
+
+  it('includes full-ISO event timestamps within a minute-precision end bound (boundary inclusion)', () => {
+    // End bound "2024-01-10T10:00" must include an event at 10:00:45.500Z
+    // (same minute) but exclude one at 10:01:30 (next minute).
+    const result = filterByDateRange(isoEntries, {
+      start: '2024-01-10T10:00',
+      end: '2024-01-10T10:00',
+    });
+    expect(result.map((e) => e.id).sort()).toEqual([1, 2]);
+  });
+
+  it('includes a full-ISO event exactly on the start bound (boundary inclusion)', () => {
+    const result = filterByDateRange(isoEntries, {
+      start: '2024-01-10T10:00',
+      end: '',
+    });
+    // Excludes id 4 (previous day, before start), keeps 1, 2, 3.
+    expect(result.map((e) => e.id).sort()).toEqual([1, 2, 3]);
+  });
+
+  it('does not silently drop entries with unparseable timestamps', () => {
+    const mixed = [
+      { timestamp: 'not-a-date', id: 1 },
+      { timestamp: '2024-06-01T10:00:00.000Z', id: 2 },
+    ];
+    const result = filterByDateRange(mixed, {
+      start: '2024-01-01T00:00',
+      end: '2024-12-31T23:59',
+    });
+    // The parseable in-range entry is kept; the unparseable one is not dropped.
+    expect(result.map((e) => e.id).sort()).toEqual([1, 2]);
+  });
 });
 
 // ── renderDateRangeFilterIndicator – inactive state ───────────────────────────

@@ -75,6 +75,82 @@ duplicate issues.
 
 ---
 
+### Issue #227 — Spec drift since #1 (audited 2026-07-07)
+
+**Audited:** `spec/README.md` against the implementation on `main` as of the
+`agent-forge/dev/issue-227` branch.
+
+#### Summary
+
+Issue #1 shipped a skeleton front-end. The spec has grown substantially since
+then. Multiple follow-up issues have shipped features. The table below records
+the **current** coverage status of every spec section.
+
+| Spec section | Status | Notes |
+|---|---|---|
+| Mission / What success looks like | ✅ Covered | Skeleton (#1), README, LICENSE, build config all present. |
+| Webhook delivery & retries — Retry schedule | ✅ Covered | `src/retryScheduler.ts` implements exponential back-off (immediate → 1 min → 5 min → 30 min → 2 h → 8 h) with configurable `maxAttempts`. Tests in `tests/retryScheduler*.test.ts`. |
+| Webhook delivery & retries — Delivery status visibility | ✅ Covered | `src/delivery-events.ts` defines `pending / delivered / failed / exhausted`; `src/delivery-event-store.ts` stores events reactively; metrics dashboard surfaces per-event-type status. |
+| Webhook delivery & retries — Manual re-trigger | ❌ **Gap — follow-up required** | No UI control exists to manually re-trigger a failed or exhausted webhook. |
+| Webhook delivery & retries — Event log | ⚠️ Partially covered | `src/delivery-event-store.ts` stores events with timestamp, HTTP status, and response body excerpt. However, no rendered event-log table UI exists in `src/` or `index.html`. |
+| Webhook delivery & retries — Exhausted-state alert | ❌ **Gap — follow-up required** | No prominent alert is surfaced in the UI when a webhook reaches `exhausted`. |
+| Webhook delivery metrics dashboard | ✅ Covered | `src/metrics.ts` (pure calculation) + `src/metrics-dashboard.ts` (reactive DOM component) implement all required metrics: success rate, average retry count by event type, median + p95 time-to-delivery, event-type breakdown, reactive updates. Tests in `tests/metrics*.test.ts` and `tests/metrics-dashboard*.test.ts`. |
+| Event log filtering — Date-range filter | ❌ **Gap — follow-up required** | No date-range filter exists in `src/`. No start/end date-time inputs, boundary logic, active-filter indicator, or filter composition with event-type/status. |
+| Event log filtering — Event-type filter | ✅ Covered | `src/eventTypeFilter.ts` (pure filter logic) + `src/eventTypeFilterIndicator.ts` (active-filter indicator + clear-all DOM helper) implement all spec requirements. Tests in `tests/test_issue92_event_type_filter*.sh`, `tests/issue171*.test.ts`, and `tests/test_issue171*.sh`. |
+| Webhook delivery simulator | ✅ Covered | `src/webhook-simulator.ts` (functional API: `simulateWebhook` / `generateSimulatedEvents`) and `src/webhookSimulator.ts` (class API: `WebhookSimulator`) both implement configurable `successRate`, full retry-schedule progression, and the canonical `DeliveryEvent` shape. Gated behind dev-mode flag; documented in `docs/simulator.md`. Tests in `tests/webhookSimulator*.test.ts`. |
+
+#### Remaining gaps requiring follow-up issues
+
+The following gaps were identified and **must each be tracked in a dedicated
+issue** before this drift can be considered resolved:
+
+1. **Manual re-trigger UI** — Add a UI control (button) on failed/exhausted
+   webhook entries that allows merchants to manually re-trigger delivery. The
+   retry scheduler (`src/retryScheduler.ts`) already exists; the gap is the
+   UI surface.
+
+2. **Exhausted-state alert** — When a webhook transitions to `exhausted`, the
+   UI must surface a prominent alert (e.g. a banner or badge) so the merchant
+   is aware without polling. The `exhausted` status is already tracked in the
+   store; the gap is the alert rendering.
+
+3. **Event log rendered UI** — A visible event-log table (or list) must be
+   rendered in the page, showing each delivery attempt with its timestamp, HTTP
+   status code, and response body excerpt. The store holds the data; the gap is
+   the DOM component and its mount point in `index.html`.
+
+4. **Date-range filter for the event log** — Implement start/end date-time
+   inputs that filter log entries by attempt timestamp, with boundary inclusion,
+   clear/reset control, active-filter indicator, and composition with the
+   existing event-type filter. Unit tests must cover range applied, range
+   cleared, and boundary entries.
+
+#### Intentional non-gaps
+
+- The **metrics dashboard** is fully implemented and tested. No follow-up needed.
+- The **event-type filter** logic and indicator are fully implemented and tested.
+  The gap is the rendered event-log table (gap #3 above), not the filter itself.
+- The **webhook delivery simulator** is fully implemented in two complementary
+  modules (`src/webhook-simulator.ts` and `src/webhookSimulator.ts`) with
+  documentation in `docs/simulator.md`. No follow-up needed.
+- The **retry scheduler** is fully implemented in `src/retryScheduler.ts`. No
+  follow-up needed.
+- No backend services, production data, or secrets are in scope (spec
+  Non-goals). This is intentional and does not constitute drift.
+
+#### Previously-recorded gaps now closed
+
+The following gaps from the Issue #174 audit have been resolved by subsequent
+issues:
+
+| Gap (from #174) | Resolved by | Notes |
+|---|---|---|
+| Webhook delivery metrics dashboard | Issues #95, #97 | `src/metrics.ts` + `src/metrics-dashboard.ts` fully implemented. |
+| Webhook delivery simulator module | Issues #147, #156 | `src/webhook-simulator.ts` + `src/webhookSimulator.ts` both present. |
+| Retry schedule | Issue #80 (and related) | `src/retryScheduler.ts` implements the full exponential back-off schedule. |
+
+---
+
 ### Issue #176 — spec drift since #11 (won't-do)
 
 **Filed:** 2026-06-20  

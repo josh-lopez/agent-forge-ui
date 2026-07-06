@@ -75,6 +75,35 @@ duplicate issues.
 
 ---
 
+### Issue #228 — spec drift since #11 (won't-do, 2026-06-20 baseline)
+
+**Filed:** 2026-07-06  
+**Resolution:** Won't-do — drift is intentional and no implementation gap exists.
+
+**What #11 shipped:** A GitHub Actions CI workflow (`.github/workflows/ci.yml`)
+that triggers on push/PR to `main`, installs dependencies (`npm ci`), type-checks
+(`npm run typecheck`), builds (`npm run build`), and runs the full test suite
+(`npm test`).
+
+**Baseline timestamp:** `2026-06-20T09:31:40.665Z` — this is the same date as
+the prior Issue #176 drift audit. The spec/README.md content at this baseline is
+identical to what was reviewed in #176: the same Webhook delivery & retries,
+Webhook delivery metrics dashboard, Event log filtering, and Webhook delivery
+simulator sections.
+
+**Why there is no new gap:** The spec sections flagged as changed since #11 are
+the same feature sections already audited in Issue #176 (filed 2026-06-20). The
+CI workflow delivers generic build-and-test infrastructure; it runs `npm test`,
+which automatically covers all new features as they are added. The spec's feature
+sections do not impose any new requirements on the CI workflow itself. The
+workflow continues to correctly gate PRs on a green build and test suite.
+
+**Conclusion:** No follow-up issue is needed. This is a duplicate of the #176
+won't-do resolution. The CI workflow is spec-compliant and will remain so as the
+product grows.
+
+---
+
 ### Issue #176 — spec drift since #11 (won't-do)
 
 **Filed:** 2026-06-20  

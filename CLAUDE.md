@@ -28,40 +28,35 @@ records the coverage status of every spec section.
 | Event log filtering — event-type filter | ✅ Covered | `src/eventTypeFilter.ts` + unit tests in `tests/test_issue92_event_type_filter*.sh` cover all three spec-mandated cases (single type, multiple types, all cleared). |
 | Webhook delivery simulator | ⚠️ Partially covered | `docs/simulator.md` documents the activation contract and production-exclusion mechanism. However, the actual simulator module (`src/simulator.ts` or equivalent) does not yet exist in `src/`. A follow-up issue is required to implement the module itself. |
 
-#### Gaps requiring follow-up issues
+#### Implementation coverage (updated by issue #229 audit, 2026-06-13 baseline)
 
-The following gaps were identified and **must each be tracked in a dedicated
-issue** before this drift can be considered resolved:
+| Spec section | Status | Notes |
+|---|---|---|
+| Mission / What success looks like | ✅ Covered | Skeleton shipped in #1; README, LICENSE, build config all present. |
+| Webhook delivery & retries | ✅ Covered | `src/retryScheduler.ts` (exponential back-off schedule + `scheduleWithRetry`), `src/delivery-event-store.ts` (reactive store), `src/delivery-events.ts` (canonical event shape). |
+| Webhook delivery metrics dashboard | ✅ Covered | `src/metrics.ts` (pure calculation: success rate, avg retry count, TTD stats) + `src/metrics-dashboard.ts` (reactive DOM component) + unit tests. |
+| Event log filtering — Date-range filter | ❌ **Gap — follow-up required** | No date-range filter UI or logic exists yet. |
+| Event log filtering — Event-type filter | ✅ Covered | `src/eventTypeFilter.ts` (logic) + `src/eventTypeFilterIndicator.ts` (active-filter indicator) + unit tests cover all three spec-mandated cases. |
+| Webhook delivery simulator | ✅ Covered | `src/webhook-simulator.ts` implements `simulateWebhook` / `generateSimulatedEvents` with configurable `successRate`, full retry-schedule progression, canonical `DeliveryEvent` shape, and dev-mode gating in `src/main.ts`. `docs/simulator.md` documents activation. |
 
-1. **Webhook delivery & retries** — Implement a delivery event store with
-   retry schedule (exponential back-off: immediate → 1 min → 5 min → 30 min →
-   2 h → 8 h), per-webhook status visibility (pending / delivered / failed /
-   exhausted), manual re-trigger UI, event log with timestamp/HTTP status/body
-   excerpt, and exhausted-state alert.
+#### Remaining gap requiring a follow-up issue
 
-2. **Webhook delivery metrics dashboard** — Implement a metrics calculation
-   module and dashboard component showing aggregate success rate, average retry
-   count (by event type), and time-to-delivery statistics (median + p95 per
-   event type), with reactive updates and unit-test coverage.
-
-3. **Date-range filter for the event log** — Implement start/end date-time
+1. **Date-range filter for the event log** — Implement start/end date-time
    inputs that filter log entries by attempt timestamp, with boundary inclusion,
    clear/reset control, active-filter indicator, and composition with the
    existing event-type filter. Unit tests must cover range applied, range
    cleared, and boundary entries.
 
-4. **Webhook delivery simulator module** — Implement `src/simulator.ts` (or
-   equivalent) with a `successRate` parameter, the same delivery-event shape as
-   the real mechanism, full retry-schedule progression, and a
-   `VITE_SIMULATOR`-gated activation path. The `docs/simulator.md` activation
-   guide already exists; the module itself is missing.
-
 #### Intentional non-gaps
 
 - The **event-type filter** (`src/eventTypeFilter.ts`) is fully implemented and
   tested. No follow-up is needed for that sub-section.
-- The **simulator documentation** (`docs/simulator.md`) is complete. The
-  follow-up issue (#4 above) covers only the missing implementation module.
+- The **simulator** (`src/webhook-simulator.ts`) is fully implemented and
+  documented. No follow-up is needed.
+- The **metrics dashboard** (`src/metrics.ts` + `src/metrics-dashboard.ts`) is
+  fully implemented and tested. No follow-up is needed.
+- The **retry scheduler** (`src/retryScheduler.ts`) is fully implemented and
+  tested. No follow-up is needed.
 - No backend services, production data, or secrets are in scope (spec
   Non-goals). This is intentional and does not constitute drift.
 

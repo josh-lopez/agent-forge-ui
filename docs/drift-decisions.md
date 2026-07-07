@@ -75,3 +75,49 @@ They are noted here for visibility but are **out of scope for issue #177**
   present)
 
 Each of these should be filed as a separate issue when prioritised.
+
+---
+
+## Issue #229 — Spec drift since issue #12 (audited 2026-06-13 baseline)
+
+### Context
+
+This drift alert was filed automatically by the weekly audit with a baseline of
+`2026-06-13T12:17:15.331Z`. Issue #177 already performed a full triage of spec
+drift since #12 (see entry above). This entry records the re-audit to confirm
+the decision still holds and to update the implementation coverage table.
+
+### What issue #12 shipped
+
+Same as documented in the Issue #177 entry above: deployment documentation
+(`README.md` `## Deployment` section), `.github/workflows/deploy.yml`, and
+`vite.config.ts` base-path configuration. None of that has changed.
+
+### Implementation progress since issue #177
+
+Since the #177 audit, several previously-open spec gaps have been closed by
+subsequent issues:
+
+| Spec section | Status at #177 | Status now |
+|---|---|---|
+| Webhook delivery & retries | ❌ Gap | ✅ Covered — `src/retryScheduler.ts` implements the exponential back-off schedule; `src/delivery-event-store.ts` provides the reactive store; `src/delivery-events.ts` defines the canonical event shape. |
+| Webhook delivery metrics dashboard | ❌ Gap | ✅ Covered — `src/metrics.ts` (pure calculation) + `src/metrics-dashboard.ts` (reactive DOM component) + unit tests in `tests/metrics.test.ts` and `tests/metrics-dashboard.test.ts`. |
+| Event log filtering — Event-type filter | ⚠️ Partial | ✅ Covered — `src/eventTypeFilter.ts` (logic) + `src/eventTypeFilterIndicator.ts` (active-filter indicator) + unit tests. |
+| Webhook delivery simulator | ⚠️ Partial (docs only) | ✅ Covered — `src/webhook-simulator.ts` implements `simulateWebhook` / `generateSimulatedEvents` with configurable `successRate`, full retry-schedule progression, and the canonical `DeliveryEvent` shape. Gated via dev-mode flag in `src/main.ts`. |
+| Event log filtering — Date-range filter | ❌ Gap | ❌ Still open — no date-range filter UI or logic exists yet. |
+
+### Decision: **won't-do** (no follow-up needed for #12 specifically)
+
+The conclusion from issue #177 still holds:
+
+- The deployment workflow, README documentation, and `vite.config.ts`
+  base-path configuration shipped by #12 are all still correct and complete.
+  Nothing in the current spec contradicts or invalidates what #12 delivered.
+- The spec additions (webhooks, metrics, filtering, simulator) are new feature
+  requirements independent of the deployment infrastructure #12 put in place.
+- The one remaining open gap (date-range filter) is a new feature, not a
+  regression in #12's work, and should be tracked as a separate issue.
+
+**No changes to the #12 implementation are required.** The drift is
+intentional and the weekly audit should not re-file this issue for the same
+baseline.

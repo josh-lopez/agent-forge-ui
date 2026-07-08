@@ -146,6 +146,87 @@ issues:
 
 ---
 
+### Issue #240 — Spec drift audit since PR #230 (audited 2026-07-14)
+
+**Audited:** `spec/README.md` against the implementation on `main` as of the
+`agent-forge/dev/issue-240` branch.
+
+**Baseline:** PR #230 merged the Issue #227 drift audit (2026-07-07). That
+audit recorded four open gaps. This audit checks whether those gaps have been
+closed and whether the spec has changed since then.
+
+#### Spec changes since PR #230
+
+A line-by-line review of `spec/README.md` confirms **no wording changes** since
+the Issue #227 baseline. All five spec sections (Mission, Webhook delivery &
+retries, Webhook delivery metrics dashboard, Event log filtering, Webhook
+delivery simulator) are identical to the text reviewed in #227.
+
+#### Implementation changes since PR #230
+
+The following source files were added after the #227 audit:
+
+| File | What it implements |
+|---|---|
+| `src/dateRangeFilter.ts` | Date-range filter logic + DOM helpers (start/end inputs, active-filter indicator, clear-all control) |
+| `tests/dateRangeFilter.test.ts` | Unit tests: range applied, range cleared, boundary entries, filter composition with event-type and status filters |
+| `tests/issue143-ac-verification.test.ts` | Additional AC verification tests for the date-range filter |
+
+#### Updated coverage table
+
+| Spec section | Status | Notes |
+|---|---|---|
+| Mission / What success looks like | ✅ Covered | Skeleton (#1), README, LICENSE, build config all present. |
+| Webhook delivery & retries — Retry schedule | ✅ Covered | `src/retryScheduler.ts` implements exponential back-off (immediate → 1 min → 5 min → 30 min → 2 h → 8 h) with configurable `maxAttempts`. |
+| Webhook delivery & retries — Delivery status visibility | ✅ Covered | `src/delivery-events.ts` defines `pending / delivered / failed / exhausted`; `src/delivery-event-store.ts` stores events reactively; metrics dashboard surfaces per-event-type status. |
+| Webhook delivery & retries — Manual re-trigger | ❌ **Gap — follow-up required** | No UI control exists to manually re-trigger a failed or exhausted webhook. The retry scheduler exists; the gap is the UI surface. |
+| Webhook delivery & retries — Event log | ❌ **Gap — follow-up required** | `src/delivery-event-store.ts` stores events with timestamp, HTTP status, and response body excerpt. However, no rendered event-log table UI exists in `src/` or `index.html`. |
+| Webhook delivery & retries — Exhausted-state alert | ❌ **Gap — follow-up required** | No prominent alert is surfaced in the UI when a webhook reaches `exhausted`. The `exhausted` status is tracked in the store; the gap is the alert rendering. |
+| Webhook delivery metrics dashboard | ✅ Covered | `src/metrics.ts` + `src/metrics-dashboard.ts` implement all required metrics: success rate, average retry count by event type, median + p95 time-to-delivery, event-type breakdown, reactive updates. Tests in `tests/metrics*.test.ts` and `tests/metrics-dashboard*.test.ts`. |
+| Event log filtering — Date-range filter | ✅ Covered | `src/dateRangeFilter.ts` implements `filterByDateRange`, `isDateRangeFilterActive`, `clearDateRangeFilter`, `renderDateRangeFilterIndicator`, and `renderDateRangeFilterInputs`. Tests in `tests/dateRangeFilter.test.ts` and `tests/issue143-ac-verification.test.ts` cover range applied, range cleared, boundary entries, and filter composition. **Gap closed since #227.** |
+| Event log filtering — Event-type filter | ✅ Covered | `src/eventTypeFilter.ts` (pure filter logic) + `src/eventTypeFilterIndicator.ts` (active-filter indicator + clear-all DOM helper) implement all spec requirements. Tests in `tests/test_issue92_event_type_filter*.sh`, `tests/issue171*.test.ts`, and `tests/test_issue171*.sh`. |
+| Webhook delivery simulator | ✅ Covered | `src/webhook-simulator.ts` (functional API) and `src/webhookSimulator.ts` (class API) both implement configurable `successRate`, full retry-schedule progression, and the canonical `DeliveryEvent` shape. Gated behind dev-mode flag; documented in `docs/simulator.md`. Tests in `tests/webhookSimulator*.test.ts`. |
+
+#### Remaining gaps requiring follow-up issues
+
+Three gaps from the Issue #227 audit remain open and **must each be tracked in
+a dedicated issue** before this drift can be considered fully resolved:
+
+1. **Manual re-trigger UI** — Add a UI control (button) on failed/exhausted
+   webhook entries that allows merchants to manually re-trigger delivery. The
+   retry scheduler (`src/retryScheduler.ts`) already exists; the gap is the
+   UI surface. Linked to release tracker #239.
+
+2. **Exhausted-state alert** — When a webhook transitions to `exhausted`, the
+   UI must surface a prominent alert (e.g. a banner or badge) so the merchant
+   is aware without polling. The `exhausted` status is already tracked in the
+   store; the gap is the alert rendering. Linked to release tracker #239.
+
+3. **Event log rendered UI** — A visible event-log table (or list) must be
+   rendered in the page, showing each delivery attempt with its timestamp, HTTP
+   status code, and response body excerpt. The store holds the data; the gap is
+   the DOM component and its mount point in `index.html`. Linked to release
+   tracker #239.
+
+#### Gap closed since #227
+
+| Gap (from #227) | Resolved by | Notes |
+|---|---|---|
+| Date-range filter for the event log | Issue #143 | `src/dateRangeFilter.ts` fully implemented with unit tests covering all spec-mandated cases. |
+
+#### Intentional non-gaps
+
+- The **metrics dashboard** is fully implemented and tested. No follow-up needed.
+- The **event-type filter** logic and indicator are fully implemented and tested.
+- The **webhook delivery simulator** is fully implemented in two complementary
+  modules with documentation in `docs/simulator.md`. No follow-up needed.
+- The **retry scheduler** is fully implemented in `src/retryScheduler.ts`. No
+  follow-up needed.
+- No backend services, production data, or secrets are in scope (spec
+  Non-goals). This is intentional and does not constitute drift.
+
+---
+
 ### Issue #228 — spec drift since #11 (won't-do, 2026-06-20 baseline)
 
 **Filed:** 2026-07-06  

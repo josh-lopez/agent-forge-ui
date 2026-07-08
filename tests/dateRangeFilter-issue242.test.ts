@@ -332,6 +332,102 @@ describe('Issue #242 AC2 – isDateRangeFilterActive returns false after clearDa
   });
 });
 
+// ── AC1 + AC2: multiple apply/clear cycles remain consistent ─────────────────
+
+describe('Issue #242 AC1+AC2 – repeated apply/clear cycles produce consistent results', () => {
+  it('applying the same range twice yields the same result', () => {
+    const range: DateRange = { start: START, end: END };
+    const first  = filterByDateRange(FIXTURE, range);
+    const second = filterByDateRange(FIXTURE, range);
+    expect(second.map((e) => e.id)).toEqual(first.map((e) => e.id));
+  });
+
+  it('clearing after two consecutive applies restores the full list', () => {
+    const range: DateRange = { start: START, end: END };
+    filterByDateRange(FIXTURE, range); // first apply
+    filterByDateRange(FIXTURE, range); // second apply
+    const cleared = clearDateRangeFilter();
+    expect(filterByDateRange(FIXTURE, cleared)).toHaveLength(FIXTURE.length);
+  });
+
+  it('alternating apply/clear/apply produces the same filtered result each time', () => {
+    const range: DateRange = { start: START, end: END };
+    const cleared = clearDateRangeFilter();
+
+    const r1 = filterByDateRange(FIXTURE, range).map((e) => e.id);
+    filterByDateRange(FIXTURE, cleared); // clear
+    const r2 = filterByDateRange(FIXTURE, range).map((e) => e.id);
+
+    expect(r2).toEqual(r1);
+  });
+
+  it('narrowing the range after a wider range excludes previously included entries', () => {
+    const wide: DateRange   = { start: START, end: END };
+    const narrow: DateRange = { start: '2024-06-15T00:00:00.000Z', end: '2024-06-15T23:59:59.999Z' };
+
+    const wideResult   = filterByDateRange(FIXTURE, wide).map((e) => e.id);
+    const narrowResult = filterByDateRange(FIXTURE, narrow).map((e) => e.id);
+
+    // Wide result contains ids 2, 3, 4; narrow result contains only id 3.
+    expect(wideResult).toContain(2);
+    expect(narrowResult).not.toContain(2);
+    expect(narrowResult).toContain(3);
+  });
+});
+
+// ── AC3+AC5 / AC4+AC6: millisecond-precision boundary symmetry ───────────────
+
+describe('Issue #242 AC3+AC5 / AC4+AC6 – millisecond-precision boundary symmetry', () => {
+  /**
+   * These tests verify that the boundary is a closed interval [start, end]
+   * with millisecond precision: the entry at exactly start (or end) is in,
+   * and the entry 1 ms away is out.  This is the tightest possible test of
+   * the inclusive-boundary requirement.
+   */
+
+  it('AC3 vs AC5: entry at start included; entry 1 ms before start excluded (symmetric check)', () => {
+    const startMs = new Date(START).getTime();
+    const atStart      = new Date(startMs).toISOString();
+    const oneBeforeStart = new Date(startMs - 1).toISOString();
+
+    const range: DateRange = { start: START, end: END };
+    const atResult     = filterByDateRange([entry(1, atStart)], range);
+    const beforeResult = filterByDateRange([entry(2, oneBeforeStart)], range);
+
+    expect(atResult).toHaveLength(1);     // included
+    expect(beforeResult).toHaveLength(0); // excluded
+  });
+
+  it('AC4 vs AC6: entry at end included; entry 1 ms after end excluded (symmetric check)', () => {
+    const endMs = new Date(END).getTime();
+    const atEnd        = new Date(endMs).toISOString();
+    const oneAfterEnd  = new Date(endMs + 1).toISOString();
+
+    const range: DateRange = { start: START, end: END };
+    const atResult    = filterByDateRange([entry(1, atEnd)], range);
+    const afterResult = filterByDateRange([entry(2, oneAfterEnd)], range);
+
+    expect(atResult).toHaveLength(1);    // included
+    expect(afterResult).toHaveLength(0); // excluded
+  });
+
+  it('range spanning exactly 1 ms includes only the entry at that millisecond', () => {
+    const midMs  = new Date('2024-06-15T12:30:00.000Z').getTime();
+    const midIso = new Date(midMs).toISOString();
+    const prevIso = new Date(midMs - 1).toISOString();
+    const nextIso = new Date(midMs + 1).toISOString();
+
+    const range: DateRange = { start: midIso, end: midIso };
+    const entries = [
+      entry(1, prevIso),
+      entry(2, midIso),
+      entry(3, nextIso),
+    ];
+    const result = filterByDateRange(entries, range);
+    expect(result.map((e) => e.id)).toEqual([2]);
+  });
+});
+
 // ── Combined boundary correctness ─────────────────────────────────────────────
 
 describe('Issue #242 – combined boundary correctness', () => {

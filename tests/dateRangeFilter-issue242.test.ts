@@ -301,6 +301,25 @@ describe('Issue #242 AC6 – boundary exclusion: entry strictly after end is exc
   });
 });
 
+// ── AC2 additional: isDateRangeFilterActive reflects cleared state ────────────
+
+describe('Issue #242 AC2 – isDateRangeFilterActive returns false after clearDateRangeFilter', () => {
+  it('clearDateRangeFilter() produces a range where isDateRangeFilterActive is false', async () => {
+    const { isDateRangeFilterActive, clearDateRangeFilter: clear } = await import('../src/dateRangeFilter');
+    expect(isDateRangeFilterActive(clear())).toBe(false);
+  });
+
+  it('isDateRangeFilterActive is true when start is set', async () => {
+    const { isDateRangeFilterActive } = await import('../src/dateRangeFilter');
+    expect(isDateRangeFilterActive({ start: '2024-06-10T00:00:00.000Z' })).toBe(true);
+  });
+
+  it('isDateRangeFilterActive is true when end is set', async () => {
+    const { isDateRangeFilterActive } = await import('../src/dateRangeFilter');
+    expect(isDateRangeFilterActive({ end: '2024-06-20T23:59:59.000Z' })).toBe(true);
+  });
+});
+
 // ── Combined boundary correctness ─────────────────────────────────────────────
 
 describe('Issue #242 – combined boundary correctness', () => {

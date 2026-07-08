@@ -318,6 +318,18 @@ describe('Issue #242 AC2 – isDateRangeFilterActive returns false after clearDa
     const { isDateRangeFilterActive } = await import('../src/dateRangeFilter');
     expect(isDateRangeFilterActive({ end: '2024-06-20T23:59:59.000Z' })).toBe(true);
   });
+
+  it('isDateRangeFilterActive is false for an empty DateRange object {}', async () => {
+    // An empty object (no start, no end) is also a valid "no filter" state.
+    const { isDateRangeFilterActive } = await import('../src/dateRangeFilter');
+    expect(isDateRangeFilterActive({})).toBe(false);
+  });
+
+  it('filterByDateRange returns the original array for an empty DateRange object {}', () => {
+    // Ensures the filter short-circuits correctly when neither bound is set.
+    const result = filterByDateRange(FIXTURE, {});
+    expect(result).toBe(FIXTURE);
+  });
 });
 
 // ── Combined boundary correctness ─────────────────────────────────────────────

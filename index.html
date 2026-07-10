@@ -12,6 +12,11 @@
     <main id="app">
       <!-- Webhook delivery metrics dashboard mounts here (see src/main.ts). -->
       <section id="metrics-dashboard" aria-label="Webhook delivery metrics"></section>
+      <!-- Event log with event-type filter control mounts here (see src/main.ts). -->
+      <section id="event-log" aria-label="Delivery event log">
+        <div id="event-type-filter" aria-label="Event-type filter"></div>
+        <div id="event-log-entries" aria-label="Event log entries"></div>
+      </section>
     </main>
     <script type="module">
       import { mountApp } from '/src/main.ts';

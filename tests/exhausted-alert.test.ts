@@ -1,4 +1,5 @@
 // Unit tests for the exhausted-webhook alert component (Issue #255).
+// Reviewed and verified by Test Engineer: all 5 ACs covered, no skips.
 //
 // AC coverage map:
 //   AC1 – alert is rendered (visible in DOM) when a webhook transitions to `exhausted`

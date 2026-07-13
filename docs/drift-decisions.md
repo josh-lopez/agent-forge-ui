@@ -78,6 +78,65 @@ Each of these should be filed as a separate issue when prioritised.
 
 ---
 
+## Issue #262 — Spec drift since issue #12 (audited 2026-06-13 baseline)
+
+### Context
+
+This drift alert was filed automatically by the weekly audit with a baseline of
+`2026-06-13T12:17:15.331Z`. Issues #177 and #229 already performed full triages
+of spec drift since #12 (see entries below). This entry records the re-audit to
+confirm the decision still holds at the current state of the codebase.
+
+### What issue #12 shipped
+
+Same as documented in the Issue #177 entry below: deployment documentation
+(`README.md` `## Deployment` section), `.github/workflows/deploy.yml`, and
+`vite.config.ts` base-path configuration. None of that has changed.
+
+### What changed in the spec since #12
+
+`spec/README.md` grew substantially after #12 shipped to add the following
+sections (none of which existed at the #12 baseline):
+
+- Webhook delivery & retries (retry schedule, delivery status visibility,
+  manual re-trigger, event log, exhausted-state alerting)
+- Webhook delivery metrics dashboard (success rate, avg retry count,
+  time-to-delivery stats, reactive updates, simulator compatibility, test
+  coverage)
+- Event log filtering — date-range filter
+- Event log filtering — event-type filter
+- Webhook delivery simulator (developer fixture)
+
+### Implementation progress since issue #229
+
+Since the #229 audit, the date-range filter gap has been closed:
+
+| Spec section | Status at #229 | Status now |
+|---|---|---|
+| Event log filtering — Date-range filter | ❌ Gap | ✅ Covered — `src/dateRangeFilter.ts` implements all spec-required functions with full test coverage. |
+
+The remaining open gaps from #229 (manual re-trigger UI, exhausted-state alert,
+rendered event-log table UI) are still open and tracked by their own dedicated
+issues.
+
+### Decision: **won't-do** (no follow-up needed for #12 specifically)
+
+The conclusion from issues #177 and #229 still holds:
+
+- The deployment workflow, README documentation, and `vite.config.ts`
+  base-path configuration shipped by #12 are all still correct and complete.
+  Nothing in the current spec contradicts or invalidates what #12 delivered.
+- None of the new spec sections impose any requirements on the deployment
+  documentation or the deploy workflow. They are orthogonal to the deployment
+  infrastructure #12 put in place.
+- All remaining open spec gaps are new feature requirements tracked by their
+  own dedicated issues, not regressions in #12's work.
+
+**No changes to the #12 implementation are required.** The drift is additive
+and the weekly audit should not re-file this issue for the same baseline.
+
+---
+
 ## Issue #229 — Spec drift since issue #12 (audited 2026-06-13 baseline)
 
 ### Context

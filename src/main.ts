@@ -4,6 +4,7 @@
 
 import { DeliveryEventStore } from './delivery-event-store';
 import { mountMetricsDashboard } from './metrics-dashboard';
+import { mountEventLog } from './event-log';
 import { generateSimulatedEvents } from './webhook-simulator';
 
 /**
@@ -38,6 +39,11 @@ export function mountApp(): DeliveryEventStore {
   const dashboardEl = document.getElementById('metrics-dashboard');
   if (dashboardEl instanceof HTMLElement) {
     mountMetricsDashboard(dashboardEl, store);
+  }
+
+  const eventLogEl = document.getElementById('event-log');
+  if (eventLogEl instanceof HTMLElement) {
+    mountEventLog(eventLogEl, store);
   }
 
   // Seed with simulated delivery events in dev/demo mode only. Because the store

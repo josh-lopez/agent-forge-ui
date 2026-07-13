@@ -244,6 +244,49 @@ product grows.
 
 ---
 
+### Issue #262 — Spec drift since #12 (won't-do, 2026-06-13 baseline)
+
+**Filed:** 2026-07-07  
+**Resolution:** Won't-do — drift is additive and does not contradict what #12 implemented.
+
+**What #12 shipped:** Deployment documentation for the front-end:
+- A `## Deployment` section in `README.md` documenting GitHub Pages as the
+  deployment target, step-by-step setup instructions, the `VITE_BASE` env var
+  for sub-path asset resolution, and a one-off manual build guide.
+- A GitHub Actions workflow at `.github/workflows/deploy.yml` that builds and
+  deploys to GitHub Pages on every push to `main`, gated on a successful
+  `npm test` run.
+- `vite.config.ts` updated to read `VITE_BASE` from `process.env` so the
+  GitHub Pages sub-path is applied in CI while local dev defaults to `/`.
+
+**Baseline timestamp:** `2026-06-13T12:17:15.331Z`
+
+**What changed in the spec since #12:** `spec/README.md` grew substantially to
+add the following sections (none of which existed at the #12 baseline):
+- Webhook delivery & retries (retry schedule, delivery status visibility,
+  manual re-trigger, event log, exhausted-state alerting)
+- Webhook delivery metrics dashboard (success rate, avg retry count,
+  time-to-delivery stats, reactive updates, simulator compatibility, test
+  coverage)
+- Event log filtering — date-range filter
+- Event log filtering — event-type filter
+- Webhook delivery simulator (developer fixture)
+
+**Why there is no gap:** None of the new spec sections impose any requirements
+on the deployment documentation or the deploy workflow. The spec's "What success
+looks like" bullet — "A working, deployable front-end" — is satisfied by the
+GitHub Pages workflow and README documentation that #12 shipped. The new feature
+sections are orthogonal to deployment infrastructure and are tracked by their
+own dedicated issues (see the Issue #227 audit above for current coverage
+status). The deployment documentation and workflow remain correct and
+spec-compliant.
+
+**Conclusion:** No follow-up issue is needed. The drift is additive (new feature
+requirements, not contradictions) and all new spec sections are already tracked
+by the existing gap-tracking entries in this file.
+
+---
+
 ### Issue #176 — spec drift since #11 (won't-do)
 
 **Filed:** 2026-06-20  

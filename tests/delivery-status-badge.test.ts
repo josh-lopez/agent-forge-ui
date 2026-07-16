@@ -10,6 +10,9 @@
  *           are covered by at least one test case.
  *   AC5  – Tests are co-located with the delivery status UI component (*.test.ts in tests/).
  *   AC6  – All new tests pass in CI with no skipped assertions.
+ *
+ * Reviewed and verified by Test Engineer (Issue #271).
+
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';

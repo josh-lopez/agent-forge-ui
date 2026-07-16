@@ -6,10 +6,50 @@ delivered / exhausted) without a running backend or any real network calls. It
 emits exactly the same delivery-event shape the real delivery mechanism uses, so
 UI components need no special-case code.
 
-This document explains **how to turn the simulator on in development** and **why
-it never ships in a production build**. The simulator module itself (its API,
-`successRate` parameter, and retry behaviour) is documented alongside the module
-in `src/`.
+This document explains **how to turn the simulator on in development**, **why
+it never ships in a production build**, and **how to configure the simulator**
+via its `SimulatorConfig` API.
+
+## Configuration
+
+The simulator is created with a `SimulatorConfig` object. The only required
+field is `successRate`; all other fields are optional.
+
+```ts
+import { WebhookSimulator } from './src/webhookSimulator';
+
+const sim = new WebhookSimulator({ successRate: 0.8 });
+
+for await (const event of sim.deliver('wh_1', 'payment.created')) {
+  console.log(event.status, event.attempt);
+}
+```
+
+### `SimulatorConfig` fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `successRate` | `number` | **Yes** | Probability (0.0–1.0) that each individual delivery attempt succeeds. `1.0` → always delivered; `0.0` → always exhausted. Values outside [0.0, 1.0] are silently clamped. |
+| `maxAttempts` | `number` | No | Maximum delivery attempts before the webhook is marked `exhausted`. Defaults to **6** (matches the spec retry schedule). |
+| `retryDelaysMs` | `number[]` | No | Back-off delays in milliseconds between attempts. Defaults to `[0, 60_000, 300_000, 1_800_000, 7_200_000, 28_800_000]` (immediate, 1 min, 5 min, 30 min, 2 h, 8 h). Pass all-zero arrays in tests to avoid real waits. |
+| `rng` | `() => number` | No | Random-number generator returning a value in [0, 1). Defaults to `Math.random`. Pass a seeded function for deterministic tests. |
+
+### `DeliveryEvent` shape
+
+Each `deliver()` call yields `DeliveryEvent` objects with the following fields:
+
+| Field | Type | Description |
+|---|---|---|
+| `webhookId` | `string` | Unique identifier for the webhook. |
+| `eventType` | `string` | Event type (e.g. `"payment.created"`). |
+| `status` | `"pending" \| "delivered" \| "failed" \| "exhausted"` | Outcome of this attempt. |
+| `timestamp` | `string` | ISO-8601 timestamp of the attempt. |
+| `httpStatus` | `number` | HTTP status code (200 on success, 500 on failure, 0 if no response). |
+| `responseExcerpt` | `string` | First 200 characters of the response body (empty string if none). |
+| `attempt` | `number` | 1-based attempt number. |
+
+The event shape is identical to what the real delivery mechanism emits, so UI
+components require no special-case code for simulator vs. live traffic.
 
 ## Activation
 

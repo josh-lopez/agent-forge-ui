@@ -63,8 +63,11 @@ They are noted here for visibility but are **out of scope for issue #177**
 
 - Webhook delivery & retries (retry schedule, delivery status UI, manual
   re-trigger, event log with HTTP status/response body, exhausted-state alert)
-- Webhook delivery metrics dashboard (success rate, average retry count,
-  time-to-delivery stats, reactive updates)
+- ~~Webhook delivery metrics dashboard~~ — **shipped in issue #145** (PR #149):
+  `src/metrics.ts` (pure calculation), `src/metrics-dashboard.ts` (reactive DOM
+  component), `src/delivery-event-store.ts` (observable store). Covers overall
+  success rate, mean retry count by event type, median and p95 time-to-delivery,
+  all presented as an aggregate and segmented by event type in a single view.
 - Event log filtering — Date-range filter (start/end inputs, boundary
   inclusion, active-filter indicator, filter composition)
 - Event log filtering — Event-type filter UI (the filter *logic* is in

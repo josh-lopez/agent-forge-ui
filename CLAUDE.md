@@ -244,6 +244,27 @@ product grows.
 
 ---
 
+### Issue #277 — Spec drift since #12 (won't-do, 2026-06-13 baseline)
+
+**Filed:** 2026-07-14  
+**Resolution:** Won't-do — duplicate of Issue #262; same baseline, same subject, same conclusion.
+
+**What #12 shipped:** Deployment documentation for the front-end (see Issue #262 entry below for full details).
+
+**Baseline timestamp:** `2026-06-13T12:17:15.331Z` — identical to the Issue #262 baseline.
+
+**Why there is no new gap:** Issue #262 (filed 2026-07-07) already performed a
+complete audit of spec drift since #12 at this exact baseline and concluded that
+all spec changes since #12 are additive feature sections orthogonal to the
+deployment infrastructure that #12 shipped. Those feature sections are tracked
+by the existing gap entries in this file (Issues #227 and #261 audits). Nothing
+in the current `spec/README.md` contradicts or invalidates what #12 implemented.
+
+**Conclusion:** No follow-up issue is needed. This is a duplicate of the #262
+won't-do resolution. See the Issue #262 entry below for the full rationale.
+
+---
+
 ### Issue #262 — Spec drift since #12 (won't-do, 2026-06-13 baseline)
 
 **Filed:** 2026-07-07  

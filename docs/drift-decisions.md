@@ -121,3 +121,38 @@ The conclusion from issue #177 still holds:
 **No changes to the #12 implementation are required.** The drift is
 intentional and the weekly audit should not re-file this issue for the same
 baseline.
+
+---
+
+## Issue #277 — Spec drift since issue #12 (won't-do, 2026-06-13 baseline)
+
+**Filed:** 2026-07-14  
+**Resolution:** Won't-do — duplicate of Issue #262; same baseline, same subject, same conclusion.
+
+### What issue #12 shipped
+
+Same as documented in the Issue #177 and Issue #229 entries above: deployment
+documentation (`README.md` `## Deployment` section), `.github/workflows/deploy.yml`,
+and `vite.config.ts` base-path configuration. None of that has changed.
+
+### Baseline timestamp
+
+`2026-06-13T12:17:15.331Z` — identical to the Issue #262 baseline.
+
+### Why there is no new gap
+
+Issue #262 (filed 2026-07-07) already performed a complete audit of spec drift
+since #12 at this exact baseline and concluded that all spec changes since #12
+are additive feature sections orthogonal to the deployment infrastructure that
+#12 shipped. Those feature sections are tracked by the existing gap entries in
+this file (Issues #227 and #261 audits). Nothing in the current `spec/README.md`
+contradicts or invalidates what #12 implemented.
+
+### Decision
+
+**No follow-up issue is needed.** This is a duplicate of the #262 won't-do
+resolution. The deployment workflow, README documentation, and `vite.config.ts`
+base-path configuration shipped by #12 are all still correct and complete. The
+drift is additive (new feature requirements, not contradictions) and all new
+spec sections are already tracked by the existing gap-tracking entries in this
+file.

@@ -244,6 +244,24 @@ product grows.
 
 ---
 
+### Issue #284 — Spec drift since #12 (won't-do, 2026-06-13 baseline)
+
+**Filed:** 2026-07-28  
+**Resolution:** Won't-do — triplicate of Issues #262 and #277; same baseline, same subject, same conclusion.
+
+**What #12 shipped:** Deployment documentation for the front-end (see Issue #262 entry below for full details):
+- A `## Deployment` section in `README.md` documenting GitHub Pages as the deployment target.
+- A GitHub Actions workflow at `.github/workflows/deploy.yml` that builds and deploys to GitHub Pages on every push to `main`.
+- `vite.config.ts` updated to read `VITE_BASE` from `process.env` for sub-path asset resolution.
+
+**Baseline timestamp:** `2026-06-13T12:17:15.331Z` — identical to the Issue #262 and #277 baselines.
+
+**Why there is no new gap:** Issues #262 (2026-07-07) and #277 (2026-07-14) already performed complete audits of spec drift since #12 at this exact baseline and concluded that all spec changes since #12 are additive feature sections orthogonal to the deployment infrastructure that #12 shipped. The `spec/README.md` content is unchanged since the Issue #276 audit (2026-07-21). Nothing in the current `spec/README.md` contradicts or invalidates what #12 implemented. The three remaining open gaps (manual re-trigger UI, exhausted-state alert, event log rendered UI) are tracked by the Issue #276 audit entry and are unrelated to #12's deployment scope.
+
+**Conclusion:** No follow-up issue is needed. This is a triplicate of the #262 won't-do resolution. See the Issue #262 entry below for the full rationale.
+
+---
+
 ### Issue #277 — Spec drift since #12 (won't-do, 2026-06-13 baseline)
 
 **Filed:** 2026-07-14  

@@ -8,21 +8,18 @@ import { generateSimulatedEvents } from './webhook-simulator';
 
 /**
  * Determines whether the client-side webhook delivery simulator should seed the
- * store. The simulator is gated behind a dev-mode flag so it has zero impact on
- * production builds:
- *   - `import.meta.env.DEV` is true under `vite dev`.
- *   - `?simulate` (or `?demo`) query param force-enables it for previews.
+ * store. The simulator is gated behind the VITE_SIMULATOR flag so it has zero
+ * impact on production builds:
+ *   - `VITE_SIMULATOR=true` activates it during development.
+ *   - The flag is statically replaced at build time, so the simulator code is
+ *     tree-shaken from production bundles when the flag is unset.
  */
 function simulatorEnabled(): boolean {
   try {
-    const env = (import.meta as { env?: { DEV?: boolean } }).env;
-    if (env?.DEV) return true;
+    const env = (import.meta as { env?: { VITE_SIMULATOR?: string } }).env;
+    if (env?.VITE_SIMULATOR === 'true') return true;
   } catch {
     // import.meta.env may be undefined outside Vite — fall through.
-  }
-  if (typeof window !== 'undefined' && window.location) {
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('simulate') || params.has('demo')) return true;
   }
   return false;
 }

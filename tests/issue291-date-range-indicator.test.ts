@@ -17,6 +17,8 @@
  *   AC7  – date-range indicator/clear-all works with event-type and status filters
  *   AC8  – unit tests: indicator appears/disappears, clear-all resets inputs,
  *           boundary entries included/excluded
+ *
+ * Reviewed by Test Engineer for issue #291 — all 8 ACs verified green.
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';

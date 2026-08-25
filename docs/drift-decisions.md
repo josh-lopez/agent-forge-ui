@@ -66,7 +66,7 @@ They are noted here for visibility but are **out of scope for issue #177**
 - Webhook delivery metrics dashboard (success rate, average retry count,
   time-to-delivery stats, reactive updates)
 - Event log filtering — Date-range filter (start/end inputs, boundary
-  inclusion, active-filter indicator, filter composition)
+  inclusion, active-filter indicator, filter composition) — **shipped in issue #143**
 - Event log filtering — Event-type filter UI (the filter *logic* is in
   `src/eventTypeFilter.ts` but the UI control, active-filter indicator, and
   filter composition with date-range are not yet wired up)
@@ -104,7 +104,7 @@ subsequent issues:
 | Webhook delivery metrics dashboard | ❌ Gap | ✅ Covered — `src/metrics.ts` (pure calculation) + `src/metrics-dashboard.ts` (reactive DOM component) + unit tests in `tests/metrics.test.ts` and `tests/metrics-dashboard.test.ts`. |
 | Event log filtering — Event-type filter | ⚠️ Partial | ✅ Covered — `src/eventTypeFilter.ts` (logic) + `src/eventTypeFilterIndicator.ts` (active-filter indicator) + unit tests. |
 | Webhook delivery simulator | ⚠️ Partial (docs only) | ✅ Covered — `src/webhook-simulator.ts` implements `simulateWebhook` / `generateSimulatedEvents` with configurable `successRate`, full retry-schedule progression, and the canonical `DeliveryEvent` shape. Gated via dev-mode flag in `src/main.ts`. |
-| Event log filtering — Date-range filter | ❌ Gap | ❌ Still open — no date-range filter UI or logic exists yet. |
+| Event log filtering — Date-range filter | ❌ Gap | ✅ Covered — `src/dateRangeFilter.ts` implements `filterByDateRange`, `isDateRangeFilterActive`, `clearDateRangeFilter`, `renderDateRangeFilterInputs`, and `renderDateRangeFilterIndicator`; unit tests in `tests/dateRangeFilter.test.ts` and `tests/issue143-ac-verification.test.ts`. |
 
 ### Decision: **won't-do** (no follow-up needed for #12 specifically)
 

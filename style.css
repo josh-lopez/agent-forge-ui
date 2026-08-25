@@ -69,3 +69,54 @@ h1 {
   color: #888;
   font-style: italic;
 }
+
+/* ── Webhook delivery event log ──────────────────────────────────────────── */
+.event-log {
+  margin: 24px auto;
+  max-width: 900px;
+}
+
+.event-log__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.event-log__title {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.event-log__export {
+  cursor: pointer;
+  padding: 6px 14px;
+  border: 1px solid #2b6cb0;
+  border-radius: 4px;
+  background: #2b6cb0;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.event-log__export:hover {
+  background: #245a94;
+}
+
+.event-log__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 12px;
+}
+
+.event-log__th,
+.event-log__cell {
+  text-align: left;
+  padding: 8px 10px;
+  border-bottom: 1px solid #eee;
+  font-size: 0.9rem;
+}
+
+.event-log__cell--empty {
+  color: #888;
+  font-style: italic;
+}

@@ -107,6 +107,28 @@ function renderTable(report: MetricsReport): HTMLElement {
 }
 
 /**
+ * Returns true when any event type in the report has at least one webhook that
+ * reached the `exhausted` state. Used to decide whether to show the alert.
+ */
+function hasExhaustedWebhooks(report: MetricsReport): boolean {
+  // The overall summary covers all event types; if any webhook is exhausted its
+  // attempt will be counted in the overall total but not in deliveredAttempts.
+  // We detect exhausted webhooks by checking the raw event data via the report's
+  // per-type breakdown: a type row with 0 delivered but > 0 attempts that are
+  // not all `failed` implies exhausted. However, the cleanest signal is to
+  // expose a dedicated count — but since MetricsReport doesn't carry raw events,
+  // we rely on the caller passing the events separately.
+  //
+  // This overload accepts an optional exhaustedCount injected by mountMetricsDashboard.
+  return (report as MetricsReportWithExhausted)._exhaustedCount > 0;
+}
+
+/** Internal extension of MetricsReport used only within this module. */
+interface MetricsReportWithExhausted extends MetricsReport {
+  _exhaustedCount: number;
+}
+
+/**
  * Builds the dashboard DOM for a given metrics report. Pure render of data →
  * DOM; used by both the live component and tests.
  */
@@ -115,6 +137,19 @@ export function renderMetricsDashboard(report: MetricsReport): HTMLElement {
   root.setAttribute('aria-label', 'Webhook delivery metrics');
 
   root.appendChild(el('h2', 'metrics-dashboard__title', 'Webhook delivery metrics'));
+
+  // Exhausted-alert banner: shown prominently when any webhook has reached the
+  // exhausted state so merchants are aware without polling (spec requirement).
+  if (hasExhaustedWebhooks(report)) {
+    const alert = el('div', 'metrics-alert metrics-alert--exhausted');
+    alert.setAttribute('role', 'alert');
+    alert.setAttribute('aria-live', 'polite');
+    alert.textContent =
+      '⚠ One or more webhooks have exhausted all retry attempts. ' +
+      'Please review the event log and re-trigger manually if needed.';
+    root.appendChild(alert);
+  }
+
   root.appendChild(renderSummaryCards(report.overall));
   root.appendChild(renderTable(report));
 
@@ -125,13 +160,23 @@ export function renderMetricsDashboard(report: MetricsReport): HTMLElement {
  * Mounts a reactive metrics dashboard into `container`, subscribed to `store`.
  * Re-renders whenever the store's events change. Returns a disposer that
  * unsubscribes and clears the rendered DOM.
+ *
+ * Reactive wiring: `store.subscribe()` invokes the render callback immediately
+ * with the current snapshot (initial render) and again on every subsequent
+ * `add`, `addMany`, or `reset` call — so metrics always reflect the latest
+ * delivery-event data within the same synchronous call as the data change.
+ * No manual refresh is required or possible.
  */
 export function mountMetricsDashboard(
   container: HTMLElement,
   store: DeliveryEventStore,
 ): () => void {
-  const render = () => {
-    const report = calculateMetrics([...store.getEvents()]);
+  const render = (events: readonly import('./delivery-events').DeliveryEvent[]) => {
+    const eventsArray = [...events];
+    const report = calculateMetrics(eventsArray) as MetricsReportWithExhausted;
+    // Count webhooks that have reached the exhausted state so the alert banner
+    // can be shown reactively without a separate query.
+    report._exhaustedCount = eventsArray.filter((e) => e.status === 'exhausted').length;
     container.replaceChildren(renderMetricsDashboard(report));
   };
 

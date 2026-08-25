@@ -68,8 +68,9 @@ They are noted here for visibility but are **out of scope for issue #177**
 - Event log filtering — Date-range filter (start/end inputs, boundary
   inclusion, active-filter indicator, filter composition)
 - Event log filtering — Event-type filter UI (the filter *logic* is in
-  `src/eventTypeFilter.ts` but the UI control, active-filter indicator, and
-  filter composition with date-range are not yet wired up)
+  `src/eventTypeFilter.ts`; the active-filter indicator and clear-all control
+  were shipped in issue #171 via `src/eventTypeFilterIndicator.ts`; filter
+  composition with the date-range dimension is not yet wired up)
 - Webhook delivery simulator module (the activation docs exist in
   `docs/simulator.md` but the `src/` simulator module itself is not yet
   present)

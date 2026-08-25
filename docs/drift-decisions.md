@@ -61,8 +61,13 @@ The following spec sections are not yet fully implemented as of this audit.
 They are noted here for visibility but are **out of scope for issue #177**
 (which is a triage-only task):
 
-- Webhook delivery & retries (retry schedule, delivery status UI, manual
-  re-trigger, event log with HTTP status/response body, exhausted-state alert)
+- Webhook delivery & retries — **core retry scheduler shipped** (issue #139 /
+  PR #194 delivered `src/retryScheduler.ts`: exponential back-off schedule of
+  immediately → 1 min → 5 min → 30 min → 2 h → 8 h, configurable
+  `maxAttempts`, `DeliveryEvent` shape shared across scheduler/simulator/UI,
+  and a cancellable `RetryHandle`). Remaining sub-items — delivery status UI,
+  manual re-trigger, event log with HTTP status/response body, and
+  exhausted-state alert — are not yet implemented.
 - Webhook delivery metrics dashboard (success rate, average retry count,
   time-to-delivery stats, reactive updates)
 - Event log filtering — Date-range filter (start/end inputs, boundary

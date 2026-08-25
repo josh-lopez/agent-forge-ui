@@ -88,6 +88,31 @@ This serves the production build locally so you can verify it works before deplo
 
 For detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
+### Webhook delivery metrics export
+
+The metrics dashboard includes an **Export** control that lets you download the
+current webhook reliability snapshot directly from the browser — no backend
+call is made.
+
+Two formats are supported:
+
+| Button | Format | MIME type | Filename pattern |
+|---|---|---|---|
+| **Export CSV** | RFC 4180 CSV | `text/csv` | `webhook-metrics-<timestamp>.csv` |
+| **Export JSON** | Pretty-printed JSON | `application/json` | `webhook-metrics-<timestamp>.json` |
+
+**CSV layout** — one header row followed by one row for the overall aggregate
+(`eventType = "overall"`) and one row per event type. Columns:
+`eventType`, `successRate`, `avgRetryCount`, `medianTtdMs`, `p95TtdMs`.
+Numeric values are rounded to four decimal places.
+
+**JSON layout** — mirrors the in-memory `MetricsSnapshot` shape:
+`exportedAt` (ISO-8601), `overall` aggregate, and a `byEventType` array.
+
+The download is triggered by a `<a download>` click on a `Blob` URL and works
+in all modern browsers. The exported file captures the snapshot at the moment
+the button is clicked, so repeated exports reflect the latest live data.
+
 ### Webhook delivery simulator (dev only)
 
 During development you can activate a client-side webhook delivery simulator to

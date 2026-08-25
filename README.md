@@ -37,6 +37,18 @@ node --version
 npm --version
 ```
 
+## Landing Page
+
+A static `index.html` lives at the repo root. Open it directly in any browser — no build step or tooling required:
+
+```
+open index.html        # macOS
+xdg-open index.html    # Linux
+start index.html       # Windows
+```
+
+It displays the product name **Agent Forge** and a one-line tagline.
+
 ## Getting Started
 
 ### 1. Install Dependencies
